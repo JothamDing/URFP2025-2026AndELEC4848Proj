@@ -1,0 +1,904 @@
+2026-04-10 16:11:53,888 - mmrotate - INFO - Environment info:
+------------------------------------------------------------
+sys.platform: win32
+Python: 3.9.25 (main, Nov  3 2025, 22:44:01) [MSC v.1929 64 bit (AMD64)]
+CUDA available: True
+GPU 0: NVIDIA GeForce RTX 5060
+CUDA_HOME: C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.8
+NVCC: Cuda compilation tools, release 12.8, V12.8.61
+MSVC: 用于 x64 的 Microsoft (R) C/C++ 优化编译器 19.42.34444 版
+GCC: n/a
+PyTorch: 2.8.0+cu128
+PyTorch compiling details: PyTorch built with:
+  - C++ Version: 201703
+  - MSVC 193833145
+  - Intel(R) oneAPI Math Kernel Library Version 2025.2-Product Build 20250620 for Intel(R) 64 architecture applications
+  - Intel(R) MKL-DNN v3.7.1 (Git Hash 8d263e693366ef8db40acc569cc7d8edf644556d)
+  - OpenMP 2019
+  - LAPACK is enabled (usually provided by MKL)
+  - CPU capability usage: AVX2
+  - CUDA Runtime 12.8
+  - NVCC architecture flags: -gencode;arch=compute_61,code=sm_61;-gencode;arch=compute_70,code=sm_70;-gencode;arch=compute_75,code=sm_75;-gencode;arch=compute_80,code=sm_80;-gencode;arch=compute_86,code=sm_86;-gencode;arch=compute_90,code=sm_90;-gencode;arch=compute_100,code=sm_100;-gencode;arch=compute_120,code=sm_120
+  - CuDNN 91.0.2  (built against CUDA 12.9)
+  - Magma 2.5.4
+  - Build settings: BLAS_INFO=mkl, BUILD_TYPE=Release, COMMIT_SHA=a1cb3cc05d46d198467bebbb6e8fba50a325d4e7, CUDA_VERSION=12.8, CUDNN_VERSION=9.10.2, CXX_COMPILER=C:/actions-runner/_work/pytorch/pytorch/pytorch/.ci/pytorch/windows/tmp_bin/sccache-cl.exe, CXX_FLAGS=/DWIN32 /D_WINDOWS /EHsc /Zc:__cplusplus /bigobj /FS /utf-8 -DUSE_PTHREADPOOL -DNDEBUG -DUSE_KINETO -DLIBKINETO_NOROCTRACER -DLIBKINETO_NOXPUPTI=ON -DUSE_FBGEMM -DUSE_XNNPACK -DSYMBOLICATE_MOBILE_DEBUG_HANDLE /wd4624 /wd4068 /wd4067 /wd4267 /wd4661 /wd4717 /wd4244 /wd4804 /wd4273, LAPACK_INFO=mkl, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, TORCH_VERSION=2.8.0, USE_CUDA=ON, USE_CUDNN=ON, USE_CUSPARSELT=OFF, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_GLOO=ON, USE_MKL=ON, USE_MKLDNN=ON, USE_MPI=OFF, USE_NCCL=OFF, USE_NNPACK=OFF, USE_OPENMP=ON, USE_ROCM=OFF, USE_ROCM_KERNEL_ASSERT=OFF, USE_XCCL=OFF, USE_XPU=OFF, 
+
+TorchVision: 0.23.0+cu128
+OpenCV: 4.13.0
+MMCV: 1.7.2
+MMCV Compiler: MSVC 194234444
+MMCV CUDA Compiler: 12.8
+MMRotate: 0.3.4+
+------------------------------------------------------------
+
+2026-04-10 16:11:54,273 - mmrotate - INFO - Distributed training: False
+2026-04-10 16:11:54,662 - mmrotate - INFO - Config:
+dataset_type = 'DOTADataset'
+data_root = 'customize-dataset-workshop/data/split_ss_dotav1.4/'
+img_norm_cfg = dict(
+    mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
+train_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(type='LoadAnnotations', with_bbox=True),
+    dict(
+        type='RResize',
+        img_scale=[(1333, 768), (1333, 1280)],
+        multiscale_mode='range'),
+    dict(
+        type='RRandomFlip',
+        flip_ratio=[0.25, 0.25, 0.25],
+        direction=['horizontal', 'vertical', 'diagonal'],
+        version='le135'),
+    dict(
+        type='Normalize',
+        mean=[123.675, 116.28, 103.53],
+        std=[58.395, 57.12, 57.375],
+        to_rgb=True),
+    dict(type='Pad', size_divisor=32),
+    dict(type='DefaultFormatBundle'),
+    dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels'])
+]
+test_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(
+        type='MultiScaleFlipAug',
+        img_scale=(1024, 1024),
+        flip=False,
+        transforms=[
+            dict(type='RResize'),
+            dict(
+                type='Normalize',
+                mean=[123.675, 116.28, 103.53],
+                std=[58.395, 57.12, 57.375],
+                to_rgb=True),
+            dict(type='Pad', size_divisor=32),
+            dict(type='DefaultFormatBundle'),
+            dict(type='Collect', keys=['img'])
+        ])
+]
+data = dict(
+    samples_per_gpu=2,
+    workers_per_gpu=0,
+    train=dict(
+        type='DOTADataset',
+        ann_file=
+        'customize-dataset-workshop/data/split_ss_dotav1.4/train/annfiles/',
+        img_prefix=
+        'customize-dataset-workshop/data/split_ss_dotav1.4/train/images/',
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(type='LoadAnnotations', with_bbox=True),
+            dict(type='RResize', img_scale=(1024, 1024)),
+            dict(
+                type='RRandomFlip',
+                flip_ratio=[0.25, 0.25, 0.25],
+                direction=['horizontal', 'vertical', 'diagonal'],
+                version='le135'),
+            dict(
+                type='Normalize',
+                mean=[123.675, 116.28, 103.53],
+                std=[58.395, 57.12, 57.375],
+                to_rgb=True),
+            dict(type='Pad', size_divisor=32),
+            dict(type='DefaultFormatBundle'),
+            dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels'])
+        ],
+        version='le135',
+        classes=('R0402', 'R0603', 'LED0603', 'R0804', 'R2512', 'CAP5053',
+                 'LQFP7070', 'SOIC-8', 'SOT-23', 'TSSOP-20', 'LED0603Flip')),
+    val=dict(
+        type='DOTADataset',
+        ann_file=
+        'customize-dataset-workshop/data/split_ss_dotav1.4/val/annfiles/',
+        img_prefix=
+        'customize-dataset-workshop/data/split_ss_dotav1.4/val/images/',
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(
+                type='MultiScaleFlipAug',
+                img_scale=(1024, 1024),
+                flip=False,
+                transforms=[
+                    dict(type='RResize'),
+                    dict(
+                        type='Normalize',
+                        mean=[123.675, 116.28, 103.53],
+                        std=[58.395, 57.12, 57.375],
+                        to_rgb=True),
+                    dict(type='Pad', size_divisor=32),
+                    dict(type='DefaultFormatBundle'),
+                    dict(type='Collect', keys=['img'])
+                ])
+        ],
+        version='le135',
+        classes=('R0402', 'R0603', 'LED0603', 'R0804', 'R2512', 'CAP5053',
+                 'LQFP7070', 'SOIC-8', 'SOT-23', 'TSSOP-20', 'LED0603Flip')),
+    test=dict(
+        type='DOTADataset',
+        ann_file=
+        'customize-dataset-workshop/data/split_ss_dotav1.4/test/annfiles/',
+        img_prefix=
+        'customize-dataset-workshop/data/split_ss_dotav1.4/test/images/',
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(
+                type='MultiScaleFlipAug',
+                img_scale=(1024, 1024),
+                flip=False,
+                transforms=[
+                    dict(type='RResize'),
+                    dict(
+                        type='Normalize',
+                        mean=[123.675, 116.28, 103.53],
+                        std=[58.395, 57.12, 57.375],
+                        to_rgb=True),
+                    dict(type='Pad', size_divisor=32),
+                    dict(type='DefaultFormatBundle'),
+                    dict(type='Collect', keys=['img'])
+                ])
+        ],
+        version='le135',
+        classes=('R0402', 'R0603', 'LED0603', 'R0804', 'R2512', 'CAP5053',
+                 'LQFP7070', 'SOIC-8', 'SOT-23', 'TSSOP-20', 'LED0603Flip')))
+evaluation = dict(interval=1, metric='mAP', iou_thr=0.7)
+optimizer = dict(type='SGD', lr=0.008, momentum=0.9, weight_decay=0.0001)
+optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
+lr_config = dict(
+    policy='step',
+    warmup='linear',
+    warmup_iters=500,
+    warmup_ratio=0.3333333333333333,
+    step=[24, 32, 38])
+runner = dict(type='EpochBasedRunner', max_epochs=24)
+checkpoint_config = dict(interval=2)
+log_config = dict(interval=50, hooks=[dict(type='TextLoggerHook')])
+dist_params = dict(backend='nccl')
+log_level = 'INFO'
+load_from = None
+resume_from = None
+workflow = [('train', 1), ('val', 1)]
+opencv_num_threads = 0
+mp_start_method = 'fork'
+angle_version = 'le135'
+norm_cfg = dict(type='GN', num_groups=32, requires_grad=True)
+model = dict(
+    type='RotatedRepPoints',
+    backbone=dict(
+        type='ResNet',
+        depth=50,
+        num_stages=4,
+        out_indices=(0, 1, 2, 3),
+        frozen_stages=1,
+        zero_init_residual=False,
+        norm_cfg=dict(type='BN', requires_grad=True),
+        norm_eval=True,
+        style='pytorch',
+        init_cfg=dict(type='Pretrained', checkpoint='torchvision://resnet50')),
+    neck=dict(
+        type='FPN',
+        in_channels=[256, 512, 1024, 2048],
+        out_channels=256,
+        start_level=1,
+        add_extra_convs='on_input',
+        num_outs=5,
+        norm_cfg=dict(type='GN', num_groups=32, requires_grad=True)),
+    bbox_head=dict(
+        type='OrientedRepPointsHead',
+        num_classes=11,
+        in_channels=256,
+        feat_channels=256,
+        point_feat_channels=256,
+        stacked_convs=3,
+        num_points=9,
+        gradient_mul=0.3,
+        point_strides=[8, 16, 32, 64, 128],
+        point_base_scale=2,
+        norm_cfg=dict(type='GN', num_groups=32, requires_grad=True),
+        loss_cls=dict(
+            type='FocalLoss',
+            use_sigmoid=True,
+            gamma=2.0,
+            alpha=0.25,
+            loss_weight=1.0),
+        loss_bbox_init=dict(type='ConvexGIoULoss', loss_weight=0.375),
+        loss_bbox_refine=dict(type='ConvexGIoULoss', loss_weight=1.0),
+        loss_spatial_init=dict(type='SpatialBorderLoss', loss_weight=0.05),
+        loss_spatial_refine=dict(type='SpatialBorderLoss', loss_weight=0.1),
+        init_qua_weight=0.2,
+        top_ratio=0.4),
+    train_cfg=dict(
+        init=dict(
+            assigner=dict(type='ConvexAssigner', scale=4, pos_num=1),
+            allowed_border=-1,
+            pos_weight=-1,
+            debug=False),
+        refine=dict(
+            assigner=dict(
+                type='MaxConvexIoUAssigner',
+                pos_iou_thr=0.1,
+                neg_iou_thr=0.1,
+                min_pos_iou=0,
+                ignore_iof_thr=-1),
+            allowed_border=-1,
+            pos_weight=-1,
+            debug=False)),
+    test_cfg=dict(
+        nms_pre=2000,
+        min_bbox_size=0,
+        score_thr=0.05,
+        nms=dict(iou_thr=0.4),
+        max_per_img=2000))
+classes = ('R0402', 'R0603', 'LED0603', 'R0804', 'R2512', 'CAP5053',
+           'LQFP7070', 'SOIC-8', 'SOT-23', 'TSSOP-20', 'LED0603Flip')
+work_dir = 'customize-dataset-workshop\output\oriented_reppoints_dotav2'
+auto_resume = False
+gpu_ids = range(0, 1)
+
+2026-04-10 16:11:54,663 - mmrotate - INFO - Set random seed to 189584030, deterministic: False
+2026-04-10 16:11:56,709 - mmrotate - INFO - Start running, host: Jotham@DESKTOP-ROGB760, work_dir: D:\mmrotate-main\customize-dataset-workshop\output\oriented_reppoints_dotav2
+2026-04-10 16:11:56,709 - mmrotate - INFO - Hooks will be executed in the following order:
+before_run:
+(VERY_HIGH   ) StepLrUpdaterHook                  
+(NORMAL      ) CheckpointHook                     
+(LOW         ) EvalHook                           
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+before_train_epoch:
+(VERY_HIGH   ) StepLrUpdaterHook                  
+(LOW         ) IterTimerHook                      
+(LOW         ) EvalHook                           
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+before_train_iter:
+(VERY_HIGH   ) StepLrUpdaterHook                  
+(LOW         ) IterTimerHook                      
+(LOW         ) EvalHook                           
+ -------------------- 
+after_train_iter:
+(ABOVE_NORMAL) OptimizerHook                      
+(NORMAL      ) CheckpointHook                     
+(LOW         ) IterTimerHook                      
+(LOW         ) EvalHook                           
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+after_train_epoch:
+(NORMAL      ) CheckpointHook                     
+(LOW         ) EvalHook                           
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+before_val_epoch:
+(LOW         ) IterTimerHook                      
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+before_val_iter:
+(LOW         ) IterTimerHook                      
+ -------------------- 
+after_val_iter:
+(LOW         ) IterTimerHook                      
+ -------------------- 
+after_val_epoch:
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+after_run:
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+2026-04-10 16:11:56,709 - mmrotate - INFO - workflow: [('train', 1), ('val', 1)], max: 24 epochs
+2026-04-10 16:11:56,709 - mmrotate - INFO - Checkpoints will be saved to D:\mmrotate-main\customize-dataset-workshop\output\oriented_reppoints_dotav2 by HardDiskBackend.
+2026-04-10 16:12:27,011 - mmrotate - INFO - Epoch [1][50/462]	lr: 3.189e-03, eta: 1:51:28, time: 0.606, data_time: 0.125, memory: 4352, loss_cls: 1.0479, loss_pts_init: 1.0541, loss_pts_refine: 0.7471, loss_spatial_init: 0.0021, loss_spatial_refine: 0.0013, loss: 2.8524, grad_norm: 7.2484
+2026-04-10 16:12:55,543 - mmrotate - INFO - Epoch [1][100/462]	lr: 3.723e-03, eta: 1:47:43, time: 0.571, data_time: 0.086, memory: 4352, loss_cls: 0.8630, loss_pts_init: 0.5163, loss_pts_refine: 0.5161, loss_spatial_init: 0.0176, loss_spatial_refine: 0.0005, loss: 1.9136, grad_norm: 5.3878
+2026-04-10 16:13:23,906 - mmrotate - INFO - Epoch [1][150/462]	lr: 4.256e-03, eta: 1:45:57, time: 0.567, data_time: 0.085, memory: 4352, loss_cls: 0.7704, loss_pts_init: 0.5216, loss_pts_refine: 0.5050, loss_spatial_init: 0.0181, loss_spatial_refine: 0.0005, loss: 1.8156, grad_norm: 4.6314
+2026-04-10 16:14:01,734 - mmrotate - INFO - Epoch [1][200/462]	lr: 4.789e-03, eta: 1:53:24, time: 0.756, data_time: 0.127, memory: 4352, loss_cls: 0.5406, loss_pts_init: 0.5276, loss_pts_refine: 0.4884, loss_spatial_init: 0.0194, loss_spatial_refine: 0.0004, loss: 1.5764, grad_norm: 3.6664
+2026-04-10 16:14:45,907 - mmrotate - INFO - Epoch [1][250/462]	lr: 5.323e-03, eta: 2:02:14, time: 0.884, data_time: 0.173, memory: 4352, loss_cls: 0.4996, loss_pts_init: 0.4960, loss_pts_refine: 0.4563, loss_spatial_init: 0.0201, loss_spatial_refine: 0.0004, loss: 1.4724, grad_norm: 3.4353
+2026-04-10 16:15:30,877 - mmrotate - INFO - Epoch [1][300/462]	lr: 5.856e-03, eta: 2:08:21, time: 0.899, data_time: 0.181, memory: 4352, loss_cls: 0.4274, loss_pts_init: 0.4839, loss_pts_refine: 0.4045, loss_spatial_init: 0.0201, loss_spatial_refine: 0.0004, loss: 1.3363, grad_norm: 3.9597
+2026-04-10 16:16:16,946 - mmrotate - INFO - Epoch [1][350/462]	lr: 6.389e-03, eta: 2:13:03, time: 0.921, data_time: 0.180, memory: 4352, loss_cls: 0.3629, loss_pts_init: 0.4558, loss_pts_refine: 0.3626, loss_spatial_init: 0.0174, loss_spatial_refine: 0.0003, loss: 1.1990, grad_norm: 4.0050
+2026-04-10 16:17:01,140 - mmrotate - INFO - Epoch [1][400/462]	lr: 6.923e-03, eta: 2:15:34, time: 0.884, data_time: 0.172, memory: 4352, loss_cls: 0.3828, loss_pts_init: 0.4229, loss_pts_refine: 0.3554, loss_spatial_init: 0.0175, loss_spatial_refine: 0.0003, loss: 1.1789, grad_norm: 4.1784
+2026-04-10 16:17:47,068 - mmrotate - INFO - Epoch [1][450/462]	lr: 7.456e-03, eta: 2:18:02, time: 0.919, data_time: 0.179, memory: 4352, loss_cls: 0.3582, loss_pts_init: 0.4226, loss_pts_refine: 0.3375, loss_spatial_init: 0.0176, loss_spatial_refine: 0.0003, loss: 1.1363, grad_norm: 4.2303
+2026-04-10 16:18:34,701 - mmrotate - INFO - 
++-------------+-----+------+--------+-------+
+| class       | gts | dets | recall | ap    |
++-------------+-----+------+--------+-------+
+| R0402       | 366 | 1773 | 0.000  | 0.000 |
+| R0603       | 363 | 2671 | 0.000  | 0.000 |
+| LED0603     | 348 | 1797 | 0.003  | 0.000 |
+| R0804       | 771 | 4388 | 0.042  | 0.003 |
+| R2512       | 93  | 2753 | 0.000  | 0.000 |
+| CAP5053     | 27  | 1198 | 0.000  | 0.000 |
+| LQFP7070    | 21  | 3603 | 0.048  | 0.000 |
+| SOIC-8      | 48  | 3051 | 0.000  | 0.000 |
+| SOT-23      | 57  | 2956 | 0.140  | 0.002 |
+| TSSOP-20    | 48  | 2726 | 0.000  | 0.000 |
+| LED0603Flip | 69  | 1298 | 0.000  | 0.000 |
++-------------+-----+------+--------+-------+
+| mAP         |     |      |        | 0.001 |
++-------------+-----+------+--------+-------+
+2026-04-10 16:18:34,780 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 16:18:34,781 - mmrotate - INFO - Epoch(val) [1][177]	mAP: 0.0005
+2026-04-10 16:19:36,216 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 16:19:36,217 - mmrotate - INFO - Epoch(val) [1][89]	loss_cls_val: 0.3872, loss_pts_init_val: 0.4296, loss_pts_refine_val: 0.4353, loss_spatial_init_val: 0.0205, loss_spatial_refine_val: 0.0004, loss_val: 1.2730
+2026-04-10 16:20:22,503 - mmrotate - INFO - Epoch [2][50/462]	lr: 8.000e-03, eta: 2:16:32, time: 0.925, data_time: 0.184, memory: 4352, loss_cls: 0.3111, loss_pts_init: 0.4509, loss_pts_refine: 0.3383, loss_spatial_init: 0.0201, loss_spatial_refine: 0.0003, loss: 1.1208, grad_norm: 4.1477
+2026-04-10 16:21:05,680 - mmrotate - INFO - Epoch [2][100/462]	lr: 8.000e-03, eta: 2:17:17, time: 0.864, data_time: 0.132, memory: 4352, loss_cls: 0.3280, loss_pts_init: 0.4099, loss_pts_refine: 0.3290, loss_spatial_init: 0.0221, loss_spatial_refine: 0.0004, loss: 1.0894, grad_norm: 4.1476
+2026-04-10 16:21:48,739 - mmrotate - INFO - Epoch [2][150/462]	lr: 8.000e-03, eta: 2:17:45, time: 0.861, data_time: 0.148, memory: 4352, loss_cls: 0.2904, loss_pts_init: 0.3605, loss_pts_refine: 0.2999, loss_spatial_init: 0.0167, loss_spatial_refine: 0.0005, loss: 0.9680, grad_norm: 3.8598
+2026-04-10 16:22:32,635 - mmrotate - INFO - Epoch [2][200/462]	lr: 8.000e-03, eta: 2:18:15, time: 0.878, data_time: 0.146, memory: 4352, loss_cls: 0.2284, loss_pts_init: 0.3702, loss_pts_refine: 0.2936, loss_spatial_init: 0.0186, loss_spatial_refine: 0.0003, loss: 0.9111, grad_norm: 3.4246
+2026-04-10 16:23:15,410 - mmrotate - INFO - Epoch [2][250/462]	lr: 8.000e-03, eta: 2:18:19, time: 0.855, data_time: 0.156, memory: 4352, loss_cls: 0.2450, loss_pts_init: 0.3610, loss_pts_refine: 0.2793, loss_spatial_init: 0.0207, loss_spatial_refine: 0.0004, loss: 0.9064, grad_norm: 3.7245
+2026-04-10 16:23:59,313 - mmrotate - INFO - Epoch [2][300/462]	lr: 8.000e-03, eta: 2:18:32, time: 0.878, data_time: 0.150, memory: 4352, loss_cls: 0.2253, loss_pts_init: 0.3191, loss_pts_refine: 0.2749, loss_spatial_init: 0.0192, loss_spatial_refine: 0.0004, loss: 0.8390, grad_norm: 3.4326
+2026-04-10 16:24:44,400 - mmrotate - INFO - Epoch [2][350/462]	lr: 8.000e-03, eta: 2:18:53, time: 0.902, data_time: 0.168, memory: 4352, loss_cls: 0.2403, loss_pts_init: 0.3493, loss_pts_refine: 0.2590, loss_spatial_init: 0.0199, loss_spatial_refine: 0.0003, loss: 0.8688, grad_norm: 3.5531
+2026-04-10 16:25:28,996 - mmrotate - INFO - Epoch [2][400/462]	lr: 8.000e-03, eta: 2:19:01, time: 0.892, data_time: 0.154, memory: 4352, loss_cls: 0.2276, loss_pts_init: 0.3558, loss_pts_refine: 0.2749, loss_spatial_init: 0.0207, loss_spatial_refine: 0.0004, loss: 0.8794, grad_norm: 3.6661
+2026-04-10 16:26:13,666 - mmrotate - INFO - Epoch [2][450/462]	lr: 8.000e-03, eta: 2:19:03, time: 0.893, data_time: 0.154, memory: 4352, loss_cls: 0.1731, loss_pts_init: 0.3005, loss_pts_refine: 0.2363, loss_spatial_init: 0.0182, loss_spatial_refine: 0.0005, loss: 0.7287, grad_norm: 3.0997
+2026-04-10 16:26:23,942 - mmrotate - INFO - Saving checkpoint at 2 epochs
+2026-04-10 16:26:59,761 - mmrotate - INFO - 
++-------------+-----+------+--------+-------+
+| class       | gts | dets | recall | ap    |
++-------------+-----+------+--------+-------+
+| R0402       | 366 | 986  | 0.617  | 0.504 |
+| R0603       | 363 | 3373 | 0.964  | 0.896 |
+| LED0603     | 348 | 2998 | 0.940  | 0.833 |
+| R0804       | 771 | 2236 | 0.933  | 0.851 |
+| R2512       | 93  | 1269 | 0.570  | 0.457 |
+| CAP5053     | 27  | 1195 | 0.889  | 0.477 |
+| LQFP7070    | 21  | 331  | 0.571  | 0.336 |
+| SOIC-8      | 48  | 1560 | 0.750  | 0.198 |
+| SOT-23      | 57  | 1498 | 0.491  | 0.210 |
+| TSSOP-20    | 48  | 830  | 0.688  | 0.462 |
+| LED0603Flip | 69  | 2774 | 0.899  | 0.244 |
++-------------+-----+------+--------+-------+
+| mAP         |     |      |        | 0.497 |
++-------------+-----+------+--------+-------+
+2026-04-10 16:26:59,840 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 16:26:59,840 - mmrotate - INFO - Epoch(val) [2][177]	mAP: 0.4971
+2026-04-10 16:27:48,854 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 16:27:48,854 - mmrotate - INFO - Epoch(val) [2][89]	loss_cls_val: 0.2062, loss_pts_init_val: 0.3084, loss_pts_refine_val: 0.2645, loss_spatial_init_val: 0.0181, loss_spatial_refine_val: 0.0003, loss_val: 0.7974
+2026-04-10 16:28:19,405 - mmrotate - INFO - Epoch [3][50/462]	lr: 8.000e-03, eta: 2:14:42, time: 0.611, data_time: 0.111, memory: 4352, loss_cls: 0.1565, loss_pts_init: 0.3012, loss_pts_refine: 0.2246, loss_spatial_init: 0.0179, loss_spatial_refine: 0.0004, loss: 0.7006, grad_norm: 3.2363
+2026-04-10 16:28:50,338 - mmrotate - INFO - Epoch [3][100/462]	lr: 8.000e-03, eta: 2:12:33, time: 0.619, data_time: 0.084, memory: 4352, loss_cls: 0.1487, loss_pts_init: 0.3025, loss_pts_refine: 0.2187, loss_spatial_init: 0.0190, loss_spatial_refine: 0.0003, loss: 0.6893, grad_norm: 3.2222
+2026-04-10 16:29:32,997 - mmrotate - INFO - Epoch [3][150/462]	lr: 8.000e-03, eta: 2:12:23, time: 0.853, data_time: 0.157, memory: 4352, loss_cls: 0.1762, loss_pts_init: 0.2717, loss_pts_refine: 0.2196, loss_spatial_init: 0.0188, loss_spatial_refine: 0.0004, loss: 0.6866, grad_norm: 3.1418
+2026-04-10 16:30:14,750 - mmrotate - INFO - Epoch [3][200/462]	lr: 8.000e-03, eta: 2:12:02, time: 0.835, data_time: 0.143, memory: 4352, loss_cls: 0.1766, loss_pts_init: 0.2872, loss_pts_refine: 0.2072, loss_spatial_init: 0.0214, loss_spatial_refine: 0.0005, loss: 0.6930, grad_norm: 3.2583
+2026-04-10 16:30:57,053 - mmrotate - INFO - Epoch [3][250/462]	lr: 8.000e-03, eta: 2:11:43, time: 0.846, data_time: 0.166, memory: 4352, loss_cls: 0.1420, loss_pts_init: 0.3388, loss_pts_refine: 0.2186, loss_spatial_init: 0.0189, loss_spatial_refine: 0.0005, loss: 0.7188, grad_norm: 3.4664
+2026-04-10 16:31:40,400 - mmrotate - INFO - Epoch [3][300/462]	lr: 8.000e-03, eta: 2:11:32, time: 0.867, data_time: 0.151, memory: 4352, loss_cls: 0.1339, loss_pts_init: 0.2893, loss_pts_refine: 0.2159, loss_spatial_init: 0.0182, loss_spatial_refine: 0.0004, loss: 0.6577, grad_norm: 3.0262
+2026-04-10 16:32:25,186 - mmrotate - INFO - Epoch [3][350/462]	lr: 8.000e-03, eta: 2:11:28, time: 0.896, data_time: 0.151, memory: 4352, loss_cls: 0.1156, loss_pts_init: 0.2549, loss_pts_refine: 0.1974, loss_spatial_init: 0.0182, loss_spatial_refine: 0.0003, loss: 0.5864, grad_norm: 2.6383
+2026-04-10 16:33:08,733 - mmrotate - INFO - Epoch [3][400/462]	lr: 8.000e-03, eta: 2:11:13, time: 0.871, data_time: 0.162, memory: 4352, loss_cls: 0.1242, loss_pts_init: 0.2447, loss_pts_refine: 0.2009, loss_spatial_init: 0.0192, loss_spatial_refine: 0.0005, loss: 0.5895, grad_norm: 3.0691
+2026-04-10 16:33:51,122 - mmrotate - INFO - Epoch [3][450/462]	lr: 8.000e-03, eta: 2:10:47, time: 0.848, data_time: 0.150, memory: 4352, loss_cls: 0.1248, loss_pts_init: 0.2797, loss_pts_refine: 0.2064, loss_spatial_init: 0.0216, loss_spatial_refine: 0.0005, loss: 0.6330, grad_norm: 3.0262
+2026-04-10 16:34:35,101 - mmrotate - INFO - 
++-------------+-----+------+--------+-------+
+| class       | gts | dets | recall | ap    |
++-------------+-----+------+--------+-------+
+| R0402       | 366 | 6559 | 0.691  | 0.544 |
+| R0603       | 363 | 2392 | 0.920  | 0.871 |
+| LED0603     | 348 | 2305 | 0.957  | 0.886 |
+| R0804       | 771 | 1926 | 0.966  | 0.884 |
+| R2512       | 93  | 552  | 0.656  | 0.521 |
+| CAP5053     | 27  | 615  | 1.000  | 0.879 |
+| LQFP7070    | 21  | 361  | 0.762  | 0.525 |
+| SOIC-8      | 48  | 655  | 1.000  | 0.494 |
+| SOT-23      | 57  | 516  | 0.912  | 0.877 |
+| TSSOP-20    | 48  | 1186 | 0.979  | 0.901 |
+| LED0603Flip | 69  | 1518 | 0.913  | 0.858 |
++-------------+-----+------+--------+-------+
+| mAP         |     |      |        | 0.749 |
++-------------+-----+------+--------+-------+
+2026-04-10 16:34:35,176 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 16:34:35,176 - mmrotate - INFO - Epoch(val) [3][177]	mAP: 0.7489
+2026-04-10 16:35:28,568 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 16:35:28,569 - mmrotate - INFO - Epoch(val) [3][89]	loss_cls_val: 0.1207, loss_pts_init_val: 0.2560, loss_pts_refine_val: 0.2226, loss_spatial_init_val: 0.0162, loss_spatial_refine_val: 0.0004, loss_val: 0.6158
+2026-04-10 16:36:14,723 - mmrotate - INFO - Epoch [4][50/462]	lr: 8.000e-03, eta: 2:09:31, time: 0.923, data_time: 0.195, memory: 4352, loss_cls: 0.0957, loss_pts_init: 0.2534, loss_pts_refine: 0.1942, loss_spatial_init: 0.0188, loss_spatial_refine: 0.0004, loss: 0.5625, grad_norm: 2.7638
+2026-04-10 16:36:57,605 - mmrotate - INFO - Epoch [4][100/462]	lr: 8.000e-03, eta: 2:09:07, time: 0.858, data_time: 0.155, memory: 4352, loss_cls: 0.1003, loss_pts_init: 0.2714, loss_pts_refine: 0.1772, loss_spatial_init: 0.0227, loss_spatial_refine: 0.0004, loss: 0.5720, grad_norm: 2.9893
+2026-04-10 16:37:41,396 - mmrotate - INFO - Epoch [4][150/462]	lr: 8.000e-03, eta: 2:08:48, time: 0.876, data_time: 0.150, memory: 4352, loss_cls: 0.0943, loss_pts_init: 0.2553, loss_pts_refine: 0.1893, loss_spatial_init: 0.0193, loss_spatial_refine: 0.0004, loss: 0.5587, grad_norm: 2.8381
+2026-04-10 16:38:24,999 - mmrotate - INFO - Epoch [4][200/462]	lr: 8.000e-03, eta: 2:08:27, time: 0.872, data_time: 0.151, memory: 4352, loss_cls: 0.0959, loss_pts_init: 0.2322, loss_pts_refine: 0.1827, loss_spatial_init: 0.0159, loss_spatial_refine: 0.0004, loss: 0.5271, grad_norm: 2.7897
+2026-04-10 16:39:07,635 - mmrotate - INFO - Epoch [4][250/462]	lr: 8.000e-03, eta: 2:07:58, time: 0.853, data_time: 0.149, memory: 4352, loss_cls: 0.0901, loss_pts_init: 0.2285, loss_pts_refine: 0.1795, loss_spatial_init: 0.0197, loss_spatial_refine: 0.0004, loss: 0.5182, grad_norm: 2.7364
+2026-04-10 16:39:51,235 - mmrotate - INFO - Epoch [4][300/462]	lr: 8.000e-03, eta: 2:07:34, time: 0.872, data_time: 0.157, memory: 4352, loss_cls: 0.0926, loss_pts_init: 0.2565, loss_pts_refine: 0.1868, loss_spatial_init: 0.0185, loss_spatial_refine: 0.0003, loss: 0.5548, grad_norm: 2.9153
+2026-04-10 16:40:32,528 - mmrotate - INFO - Epoch [4][350/462]	lr: 8.000e-03, eta: 2:06:57, time: 0.826, data_time: 0.144, memory: 4352, loss_cls: 0.1035, loss_pts_init: 0.2421, loss_pts_refine: 0.1721, loss_spatial_init: 0.0219, loss_spatial_refine: 0.0004, loss: 0.5400, grad_norm: 2.8391
+2026-04-10 16:41:01,149 - mmrotate - INFO - Epoch [4][400/462]	lr: 8.000e-03, eta: 2:05:13, time: 0.572, data_time: 0.074, memory: 4352, loss_cls: 0.0809, loss_pts_init: 0.2192, loss_pts_refine: 0.1604, loss_spatial_init: 0.0211, loss_spatial_refine: 0.0004, loss: 0.4821, grad_norm: 2.6133
+2026-04-10 16:41:29,373 - mmrotate - INFO - Epoch [4][450/462]	lr: 8.000e-03, eta: 2:03:31, time: 0.564, data_time: 0.073, memory: 4352, loss_cls: 0.0707, loss_pts_init: 0.1951, loss_pts_refine: 0.1609, loss_spatial_init: 0.0196, loss_spatial_refine: 0.0005, loss: 0.4468, grad_norm: 2.6609
+2026-04-10 16:41:36,279 - mmrotate - INFO - Saving checkpoint at 4 epochs
+2026-04-10 16:42:00,019 - mmrotate - INFO - 
++-------------+-----+------+--------+-------+
+| class       | gts | dets | recall | ap    |
++-------------+-----+------+--------+-------+
+| R0402       | 366 | 1491 | 0.740  | 0.697 |
+| R0603       | 363 | 883  | 0.986  | 0.903 |
+| LED0603     | 348 | 1357 | 0.974  | 0.901 |
+| R0804       | 771 | 1541 | 0.994  | 0.901 |
+| R2512       | 93  | 306  | 0.946  | 0.897 |
+| CAP5053     | 27  | 202  | 1.000  | 0.793 |
+| LQFP7070    | 21  | 171  | 1.000  | 0.996 |
+| SOIC-8      | 48  | 205  | 0.938  | 0.594 |
+| SOT-23      | 57  | 497  | 0.930  | 0.909 |
+| TSSOP-20    | 48  | 1200 | 0.958  | 0.903 |
+| LED0603Flip | 69  | 558  | 0.971  | 0.883 |
++-------------+-----+------+--------+-------+
+| mAP         |     |      |        | 0.852 |
++-------------+-----+------+--------+-------+
+2026-04-10 16:42:00,093 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 16:42:00,093 - mmrotate - INFO - Epoch(val) [4][177]	mAP: 0.8525
+2026-04-10 16:42:35,930 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 16:42:35,930 - mmrotate - INFO - Epoch(val) [4][89]	loss_cls_val: 0.0980, loss_pts_init_val: 0.2114, loss_pts_refine_val: 0.1648, loss_spatial_init_val: 0.0190, loss_spatial_refine_val: 0.0004, loss_val: 0.4935
+2026-04-10 16:43:06,012 - mmrotate - INFO - Epoch [5][50/462]	lr: 8.000e-03, eta: 2:01:07, time: 0.601, data_time: 0.113, memory: 4352, loss_cls: 0.0797, loss_pts_init: 0.2238, loss_pts_refine: 0.1610, loss_spatial_init: 0.0207, loss_spatial_refine: 0.0004, loss: 0.4855, grad_norm: 2.7587
+2026-04-10 16:43:35,048 - mmrotate - INFO - Epoch [5][100/462]	lr: 8.000e-03, eta: 1:59:38, time: 0.581, data_time: 0.070, memory: 4352, loss_cls: 0.0718, loss_pts_init: 0.2103, loss_pts_refine: 0.1584, loss_spatial_init: 0.0195, loss_spatial_refine: 0.0004, loss: 0.4604, grad_norm: 2.6873
+2026-04-10 16:44:03,365 - mmrotate - INFO - Epoch [5][150/462]	lr: 8.000e-03, eta: 1:58:09, time: 0.566, data_time: 0.072, memory: 4352, loss_cls: 0.0789, loss_pts_init: 0.2257, loss_pts_refine: 0.1632, loss_spatial_init: 0.0191, loss_spatial_refine: 0.0004, loss: 0.4872, grad_norm: 2.8625
+2026-04-10 16:44:31,595 - mmrotate - INFO - Epoch [5][200/462]	lr: 8.000e-03, eta: 1:56:42, time: 0.565, data_time: 0.071, memory: 4352, loss_cls: 0.0951, loss_pts_init: 0.2044, loss_pts_refine: 0.1658, loss_spatial_init: 0.0183, loss_spatial_refine: 0.0004, loss: 0.4840, grad_norm: 3.0412
+2026-04-10 16:44:59,422 - mmrotate - INFO - Epoch [5][250/462]	lr: 8.000e-03, eta: 1:55:17, time: 0.557, data_time: 0.071, memory: 4352, loss_cls: 0.0912, loss_pts_init: 0.2269, loss_pts_refine: 0.1621, loss_spatial_init: 0.0234, loss_spatial_refine: 0.0005, loss: 0.5040, grad_norm: 2.8792
+2026-04-10 16:45:26,660 - mmrotate - INFO - Epoch [5][300/462]	lr: 8.000e-03, eta: 1:53:52, time: 0.545, data_time: 0.072, memory: 4352, loss_cls: 0.0688, loss_pts_init: 0.1837, loss_pts_refine: 0.1537, loss_spatial_init: 0.0194, loss_spatial_refine: 0.0004, loss: 0.4260, grad_norm: 2.4656
+2026-04-10 16:45:54,502 - mmrotate - INFO - Epoch [5][350/462]	lr: 8.000e-03, eta: 1:52:31, time: 0.557, data_time: 0.072, memory: 4352, loss_cls: 0.0716, loss_pts_init: 0.1942, loss_pts_refine: 0.1616, loss_spatial_init: 0.0198, loss_spatial_refine: 0.0004, loss: 0.4476, grad_norm: 2.5698
+2026-04-10 16:46:22,664 - mmrotate - INFO - Epoch [5][400/462]	lr: 8.000e-03, eta: 1:51:15, time: 0.563, data_time: 0.076, memory: 4352, loss_cls: 0.0640, loss_pts_init: 0.2011, loss_pts_refine: 0.1525, loss_spatial_init: 0.0196, loss_spatial_refine: 0.0004, loss: 0.4375, grad_norm: 2.6326
+2026-04-10 16:46:51,731 - mmrotate - INFO - Epoch [5][450/462]	lr: 8.000e-03, eta: 1:50:04, time: 0.581, data_time: 0.074, memory: 4352, loss_cls: 0.0898, loss_pts_init: 0.2056, loss_pts_refine: 0.1643, loss_spatial_init: 0.0194, loss_spatial_refine: 0.0004, loss: 0.4795, grad_norm: 2.7622
+2026-04-10 16:47:21,738 - mmrotate - INFO - 
++-------------+-----+------+--------+-------+
+| class       | gts | dets | recall | ap    |
++-------------+-----+------+--------+-------+
+| R0402       | 366 | 2969 | 0.803  | 0.779 |
+| R0603       | 363 | 2354 | 0.981  | 0.899 |
+| LED0603     | 348 | 2223 | 0.966  | 0.900 |
+| R0804       | 771 | 1668 | 0.994  | 0.905 |
+| R2512       | 93  | 354  | 0.989  | 0.909 |
+| CAP5053     | 27  | 324  | 1.000  | 0.991 |
+| LQFP7070    | 21  | 1958 | 1.000  | 0.977 |
+| SOIC-8      | 48  | 728  | 1.000  | 0.833 |
+| SOT-23      | 57  | 1185 | 0.947  | 0.909 |
+| TSSOP-20    | 48  | 280  | 1.000  | 0.974 |
+| LED0603Flip | 69  | 1067 | 0.986  | 0.899 |
++-------------+-----+------+--------+-------+
+| mAP         |     |      |        | 0.907 |
++-------------+-----+------+--------+-------+
+2026-04-10 16:47:21,810 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 16:47:21,810 - mmrotate - INFO - Epoch(val) [5][177]	mAP: 0.9068
+2026-04-10 16:47:57,730 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 16:47:57,730 - mmrotate - INFO - Epoch(val) [5][89]	loss_cls_val: 0.0978, loss_pts_init_val: 0.2184, loss_pts_refine_val: 0.1649, loss_spatial_init_val: 0.0178, loss_spatial_refine_val: 0.0003, loss_val: 0.4993
+2026-04-10 16:48:27,716 - mmrotate - INFO - Epoch [6][50/462]	lr: 8.000e-03, eta: 1:48:16, time: 0.599, data_time: 0.112, memory: 4352, loss_cls: 0.0669, loss_pts_init: 0.1890, loss_pts_refine: 0.1460, loss_spatial_init: 0.0180, loss_spatial_refine: 0.0004, loss: 0.4203, grad_norm: 2.5470
+2026-04-10 16:48:55,238 - mmrotate - INFO - Epoch [6][100/462]	lr: 8.000e-03, eta: 1:47:04, time: 0.550, data_time: 0.071, memory: 4352, loss_cls: 0.0640, loss_pts_init: 0.1829, loss_pts_refine: 0.1423, loss_spatial_init: 0.0201, loss_spatial_refine: 0.0005, loss: 0.4097, grad_norm: 2.6698
+2026-04-10 16:49:22,810 - mmrotate - INFO - Epoch [6][150/462]	lr: 8.000e-03, eta: 1:45:54, time: 0.551, data_time: 0.071, memory: 4352, loss_cls: 0.1402, loss_pts_init: 0.1874, loss_pts_refine: 0.1514, loss_spatial_init: 0.0191, loss_spatial_refine: 0.0005, loss: 0.4984, grad_norm: 3.2440
+2026-04-10 16:49:50,423 - mmrotate - INFO - Epoch [6][200/462]	lr: 8.000e-03, eta: 1:44:45, time: 0.552, data_time: 0.071, memory: 4352, loss_cls: 0.0809, loss_pts_init: 0.1924, loss_pts_refine: 0.1548, loss_spatial_init: 0.0212, loss_spatial_refine: 0.0005, loss: 0.4498, grad_norm: 2.5930
+2026-04-10 16:50:18,852 - mmrotate - INFO - Epoch [6][250/462]	lr: 8.000e-03, eta: 1:43:41, time: 0.569, data_time: 0.072, memory: 4352, loss_cls: 0.0725, loss_pts_init: 0.1930, loss_pts_refine: 0.1509, loss_spatial_init: 0.0216, loss_spatial_refine: 0.0003, loss: 0.4383, grad_norm: 2.6187
+2026-04-10 16:50:46,538 - mmrotate - INFO - Epoch [6][300/462]	lr: 8.000e-03, eta: 1:42:36, time: 0.554, data_time: 0.071, memory: 4352, loss_cls: 0.0632, loss_pts_init: 0.1799, loss_pts_refine: 0.1419, loss_spatial_init: 0.0214, loss_spatial_refine: 0.0004, loss: 0.4067, grad_norm: 2.5422
+2026-04-10 16:51:14,124 - mmrotate - INFO - Epoch [6][350/462]	lr: 8.000e-03, eta: 1:41:32, time: 0.552, data_time: 0.071, memory: 4352, loss_cls: 0.0552, loss_pts_init: 0.1819, loss_pts_refine: 0.1379, loss_spatial_init: 0.0230, loss_spatial_refine: 0.0004, loss: 0.3984, grad_norm: 2.5166
+2026-04-10 16:51:42,018 - mmrotate - INFO - Epoch [6][400/462]	lr: 8.000e-03, eta: 1:40:31, time: 0.558, data_time: 0.070, memory: 4352, loss_cls: 0.0627, loss_pts_init: 0.1695, loss_pts_refine: 0.1470, loss_spatial_init: 0.0180, loss_spatial_refine: 0.0004, loss: 0.3976, grad_norm: 2.3208
+2026-04-10 16:52:10,536 - mmrotate - INFO - Epoch [6][450/462]	lr: 8.000e-03, eta: 1:39:32, time: 0.570, data_time: 0.072, memory: 4352, loss_cls: 0.0471, loss_pts_init: 0.1363, loss_pts_refine: 0.1312, loss_spatial_init: 0.0143, loss_spatial_refine: 0.0003, loss: 0.3291, grad_norm: 2.0201
+2026-04-10 16:52:17,396 - mmrotate - INFO - Saving checkpoint at 6 epochs
+2026-04-10 16:52:40,852 - mmrotate - INFO - 
++-------------+-----+------+--------+-------+
+| class       | gts | dets | recall | ap    |
++-------------+-----+------+--------+-------+
+| R0402       | 366 | 1372 | 0.836  | 0.795 |
+| R0603       | 363 | 918  | 0.992  | 0.906 |
+| LED0603     | 348 | 1134 | 0.980  | 0.903 |
+| R0804       | 771 | 1391 | 1.000  | 0.992 |
+| R2512       | 93  | 210  | 1.000  | 1.000 |
+| CAP5053     | 27  | 384  | 1.000  | 1.000 |
+| LQFP7070    | 21  | 44   | 1.000  | 0.996 |
+| SOIC-8      | 48  | 449  | 1.000  | 1.000 |
+| SOT-23      | 57  | 754  | 1.000  | 1.000 |
+| TSSOP-20    | 48  | 649  | 1.000  | 1.000 |
+| LED0603Flip | 69  | 475  | 1.000  | 1.000 |
++-------------+-----+------+--------+-------+
+| mAP         |     |      |        | 0.963 |
++-------------+-----+------+--------+-------+
+2026-04-10 16:52:40,922 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 16:52:40,923 - mmrotate - INFO - Epoch(val) [6][177]	mAP: 0.9629
+2026-04-10 16:53:16,553 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 16:53:16,553 - mmrotate - INFO - Epoch(val) [6][89]	loss_cls_val: 0.0548, loss_pts_init_val: 0.1652, loss_pts_refine_val: 0.1379, loss_spatial_init_val: 0.0175, loss_spatial_refine_val: 0.0003, loss_val: 0.3758
+2026-04-10 16:53:46,562 - mmrotate - INFO - Epoch [7][50/462]	lr: 8.000e-03, eta: 1:38:05, time: 0.600, data_time: 0.112, memory: 4352, loss_cls: 0.0458, loss_pts_init: 0.1574, loss_pts_refine: 0.1272, loss_spatial_init: 0.0189, loss_spatial_refine: 0.0005, loss: 0.3498, grad_norm: 2.3319
+2026-04-10 16:54:15,018 - mmrotate - INFO - Epoch [7][100/462]	lr: 8.000e-03, eta: 1:37:09, time: 0.569, data_time: 0.075, memory: 4352, loss_cls: 0.0520, loss_pts_init: 0.1709, loss_pts_refine: 0.1423, loss_spatial_init: 0.0167, loss_spatial_refine: 0.0004, loss: 0.3823, grad_norm: 2.4043
+2026-04-10 16:54:43,616 - mmrotate - INFO - Epoch [7][150/462]	lr: 8.000e-03, eta: 1:36:15, time: 0.572, data_time: 0.075, memory: 4352, loss_cls: 0.0563, loss_pts_init: 0.1842, loss_pts_refine: 0.1490, loss_spatial_init: 0.0182, loss_spatial_refine: 0.0004, loss: 0.4081, grad_norm: 2.4767
+2026-04-10 16:55:11,303 - mmrotate - INFO - Epoch [7][200/462]	lr: 8.000e-03, eta: 1:35:18, time: 0.554, data_time: 0.072, memory: 4352, loss_cls: 0.0500, loss_pts_init: 0.1597, loss_pts_refine: 0.1302, loss_spatial_init: 0.0210, loss_spatial_refine: 0.0005, loss: 0.3613, grad_norm: 2.4404
+2026-04-10 16:55:39,198 - mmrotate - INFO - Epoch [7][250/462]	lr: 8.000e-03, eta: 1:34:23, time: 0.558, data_time: 0.071, memory: 4352, loss_cls: 0.0672, loss_pts_init: 0.1807, loss_pts_refine: 0.1409, loss_spatial_init: 0.0204, loss_spatial_refine: 0.0004, loss: 0.4096, grad_norm: 2.6229
+2026-04-10 16:56:06,595 - mmrotate - INFO - Epoch [7][300/462]	lr: 8.000e-03, eta: 1:33:28, time: 0.548, data_time: 0.073, memory: 4352, loss_cls: 0.0548, loss_pts_init: 0.1752, loss_pts_refine: 0.1395, loss_spatial_init: 0.0221, loss_spatial_refine: 0.0005, loss: 0.3921, grad_norm: 2.4503
+2026-04-10 16:56:46,594 - mmrotate - INFO - Epoch [7][350/462]	lr: 8.000e-03, eta: 1:33:06, time: 0.800, data_time: 0.133, memory: 4352, loss_cls: 0.0480, loss_pts_init: 0.1504, loss_pts_refine: 0.1336, loss_spatial_init: 0.0179, loss_spatial_refine: 0.0004, loss: 0.3502, grad_norm: 2.1103
+2026-04-10 16:57:28,240 - mmrotate - INFO - Epoch [7][400/462]	lr: 8.000e-03, eta: 1:32:47, time: 0.833, data_time: 0.160, memory: 4352, loss_cls: 0.0443, loss_pts_init: 0.1918, loss_pts_refine: 0.1371, loss_spatial_init: 0.0217, loss_spatial_refine: 0.0004, loss: 0.3953, grad_norm: 2.5585
+2026-04-10 16:58:11,476 - mmrotate - INFO - Epoch [7][450/462]	lr: 8.000e-03, eta: 1:32:32, time: 0.865, data_time: 0.156, memory: 4352, loss_cls: 0.0491, loss_pts_init: 0.1640, loss_pts_refine: 0.1383, loss_spatial_init: 0.0167, loss_spatial_refine: 0.0003, loss: 0.3685, grad_norm: 2.1887
+2026-04-10 16:58:54,989 - mmrotate - INFO - 
++-------------+-----+------+--------+-------+
+| class       | gts | dets | recall | ap    |
++-------------+-----+------+--------+-------+
+| R0402       | 366 | 1239 | 0.850  | 0.800 |
+| R0603       | 363 | 935  | 0.986  | 0.906 |
+| LED0603     | 348 | 1417 | 0.989  | 0.907 |
+| R0804       | 771 | 1328 | 1.000  | 0.995 |
+| R2512       | 93  | 238  | 1.000  | 1.000 |
+| CAP5053     | 27  | 162  | 1.000  | 1.000 |
+| LQFP7070    | 21  | 135  | 1.000  | 0.984 |
+| SOIC-8      | 48  | 223  | 1.000  | 0.995 |
+| SOT-23      | 57  | 131  | 1.000  | 1.000 |
+| TSSOP-20    | 48  | 222  | 1.000  | 1.000 |
+| LED0603Flip | 69  | 575  | 1.000  | 1.000 |
++-------------+-----+------+--------+-------+
+| mAP         |     |      |        | 0.962 |
++-------------+-----+------+--------+-------+
+2026-04-10 16:58:55,058 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 16:58:55,058 - mmrotate - INFO - Epoch(val) [7][177]	mAP: 0.9624
+2026-04-10 16:59:55,083 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 16:59:55,084 - mmrotate - INFO - Epoch(val) [7][89]	loss_cls_val: 0.0503, loss_pts_init_val: 0.1695, loss_pts_refine_val: 0.1365, loss_spatial_init_val: 0.0176, loss_spatial_refine_val: 0.0004, loss_val: 0.3743
+2026-04-10 17:00:38,819 - mmrotate - INFO - Epoch [8][50/462]	lr: 8.000e-03, eta: 1:31:48, time: 0.874, data_time: 0.186, memory: 4352, loss_cls: 0.0604, loss_pts_init: 0.1494, loss_pts_refine: 0.1321, loss_spatial_init: 0.0194, loss_spatial_refine: 0.0004, loss: 0.3618, grad_norm: 2.2741
+2026-04-10 17:01:19,486 - mmrotate - INFO - Epoch [8][100/462]	lr: 8.000e-03, eta: 1:31:25, time: 0.813, data_time: 0.150, memory: 4352, loss_cls: 0.0491, loss_pts_init: 0.1638, loss_pts_refine: 0.1331, loss_spatial_init: 0.0221, loss_spatial_refine: 0.0004, loss: 0.3685, grad_norm: 2.3676
+2026-04-10 17:02:01,622 - mmrotate - INFO - Epoch [8][150/462]	lr: 8.000e-03, eta: 1:31:05, time: 0.843, data_time: 0.146, memory: 4352, loss_cls: 0.0542, loss_pts_init: 0.1640, loss_pts_refine: 0.1365, loss_spatial_init: 0.0178, loss_spatial_refine: 0.0004, loss: 0.3729, grad_norm: 2.4136
+2026-04-10 17:02:44,339 - mmrotate - INFO - Epoch [8][200/462]	lr: 8.000e-03, eta: 1:30:46, time: 0.854, data_time: 0.147, memory: 4352, loss_cls: 0.0514, loss_pts_init: 0.1567, loss_pts_refine: 0.1286, loss_spatial_init: 0.0236, loss_spatial_refine: 0.0004, loss: 0.3608, grad_norm: 2.3213
+2026-04-10 17:03:26,184 - mmrotate - INFO - Epoch [8][250/462]	lr: 8.000e-03, eta: 1:30:24, time: 0.837, data_time: 0.154, memory: 4352, loss_cls: 0.0501, loss_pts_init: 0.1438, loss_pts_refine: 0.1233, loss_spatial_init: 0.0193, loss_spatial_refine: 0.0004, loss: 0.3369, grad_norm: 2.2964
+2026-04-10 17:04:08,924 - mmrotate - INFO - Epoch [8][300/462]	lr: 8.000e-03, eta: 1:30:03, time: 0.855, data_time: 0.143, memory: 4352, loss_cls: 0.0407, loss_pts_init: 0.1491, loss_pts_refine: 0.1290, loss_spatial_init: 0.0197, loss_spatial_refine: 0.0004, loss: 0.3389, grad_norm: 2.2002
+2026-04-10 17:04:52,617 - mmrotate - INFO - Epoch [8][350/462]	lr: 8.000e-03, eta: 1:29:44, time: 0.874, data_time: 0.139, memory: 4352, loss_cls: 0.0396, loss_pts_init: 0.1574, loss_pts_refine: 0.1344, loss_spatial_init: 0.0182, loss_spatial_refine: 0.0004, loss: 0.3499, grad_norm: 2.2050
+2026-04-10 17:05:34,892 - mmrotate - INFO - Epoch [8][400/462]	lr: 8.000e-03, eta: 1:29:21, time: 0.845, data_time: 0.159, memory: 4352, loss_cls: 0.0414, loss_pts_init: 0.1603, loss_pts_refine: 0.1208, loss_spatial_init: 0.0223, loss_spatial_refine: 0.0003, loss: 0.3450, grad_norm: 2.2450
+2026-04-10 17:06:16,303 - mmrotate - INFO - Epoch [8][450/462]	lr: 8.000e-03, eta: 1:28:56, time: 0.828, data_time: 0.137, memory: 4352, loss_cls: 0.0499, loss_pts_init: 0.1588, loss_pts_refine: 0.1244, loss_spatial_init: 0.0185, loss_spatial_refine: 0.0004, loss: 0.3521, grad_norm: 2.3614
+2026-04-10 17:06:26,537 - mmrotate - INFO - Saving checkpoint at 8 epochs
+2026-04-10 17:07:00,977 - mmrotate - INFO - 
++-------------+-----+------+--------+-------+
+| class       | gts | dets | recall | ap    |
++-------------+-----+------+--------+-------+
+| R0402       | 366 | 1814 | 0.880  | 0.809 |
+| R0603       | 363 | 1154 | 0.981  | 0.906 |
+| LED0603     | 348 | 1319 | 1.000  | 0.942 |
+| R0804       | 771 | 1243 | 1.000  | 0.991 |
+| R2512       | 93  | 233  | 1.000  | 0.999 |
+| CAP5053     | 27  | 178  | 1.000  | 1.000 |
+| LQFP7070    | 21  | 96   | 1.000  | 0.989 |
+| SOIC-8      | 48  | 337  | 1.000  | 1.000 |
+| SOT-23      | 57  | 190  | 0.982  | 0.909 |
+| TSSOP-20    | 48  | 233  | 1.000  | 1.000 |
+| LED0603Flip | 69  | 344  | 1.000  | 1.000 |
++-------------+-----+------+--------+-------+
+| mAP         |     |      |        | 0.959 |
++-------------+-----+------+--------+-------+
+2026-04-10 17:07:01,050 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 17:07:01,050 - mmrotate - INFO - Epoch(val) [8][177]	mAP: 0.9586
+2026-04-10 17:08:02,717 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 17:08:02,718 - mmrotate - INFO - Epoch(val) [8][89]	loss_cls_val: 0.0487, loss_pts_init_val: 0.1570, loss_pts_refine_val: 0.1323, loss_spatial_init_val: 0.0179, loss_spatial_refine_val: 0.0003, loss_val: 0.3563
+2026-04-10 17:08:48,022 - mmrotate - INFO - Epoch [9][50/462]	lr: 8.000e-03, eta: 1:28:13, time: 0.906, data_time: 0.191, memory: 4352, loss_cls: 0.0442, loss_pts_init: 0.1445, loss_pts_refine: 0.1166, loss_spatial_init: 0.0206, loss_spatial_refine: 0.0003, loss: 0.3263, grad_norm: 2.1490
+2026-04-10 17:09:29,933 - mmrotate - INFO - Epoch [9][100/462]	lr: 8.000e-03, eta: 1:27:48, time: 0.838, data_time: 0.157, memory: 4352, loss_cls: 0.0466, loss_pts_init: 0.1500, loss_pts_refine: 0.1261, loss_spatial_init: 0.0216, loss_spatial_refine: 0.0005, loss: 0.3447, grad_norm: 2.2858
+2026-04-10 17:10:14,507 - mmrotate - INFO - Epoch [9][150/462]	lr: 8.000e-03, eta: 1:27:28, time: 0.891, data_time: 0.155, memory: 4352, loss_cls: 0.0411, loss_pts_init: 0.1647, loss_pts_refine: 0.1267, loss_spatial_init: 0.0193, loss_spatial_refine: 0.0003, loss: 0.3521, grad_norm: 2.2832
+2026-04-10 17:10:56,844 - mmrotate - INFO - Epoch [9][200/462]	lr: 8.000e-03, eta: 1:27:03, time: 0.847, data_time: 0.159, memory: 4352, loss_cls: 0.0465, loss_pts_init: 0.1303, loss_pts_refine: 0.1287, loss_spatial_init: 0.0176, loss_spatial_refine: 0.0005, loss: 0.3234, grad_norm: 2.0989
+2026-04-10 17:11:39,964 - mmrotate - INFO - Epoch [9][250/462]	lr: 8.000e-03, eta: 1:26:39, time: 0.862, data_time: 0.161, memory: 4352, loss_cls: 0.0423, loss_pts_init: 0.1362, loss_pts_refine: 0.1216, loss_spatial_init: 0.0180, loss_spatial_refine: 0.0004, loss: 0.3183, grad_norm: 2.1039
+2026-04-10 17:12:24,405 - mmrotate - INFO - Epoch [9][300/462]	lr: 8.000e-03, eta: 1:26:17, time: 0.889, data_time: 0.164, memory: 4352, loss_cls: 0.0396, loss_pts_init: 0.1435, loss_pts_refine: 0.1222, loss_spatial_init: 0.0194, loss_spatial_refine: 0.0003, loss: 0.3250, grad_norm: 2.1155
+2026-04-10 17:13:07,640 - mmrotate - INFO - Epoch [9][350/462]	lr: 8.000e-03, eta: 1:25:52, time: 0.865, data_time: 0.147, memory: 4352, loss_cls: 0.0389, loss_pts_init: 0.1446, loss_pts_refine: 0.1228, loss_spatial_init: 0.0190, loss_spatial_refine: 0.0004, loss: 0.3257, grad_norm: 2.2231
+2026-04-10 17:13:50,221 - mmrotate - INFO - Epoch [9][400/462]	lr: 8.000e-03, eta: 1:25:26, time: 0.852, data_time: 0.156, memory: 4352, loss_cls: 0.0430, loss_pts_init: 0.1491, loss_pts_refine: 0.1285, loss_spatial_init: 0.0202, loss_spatial_refine: 0.0004, loss: 0.3411, grad_norm: 2.1901
+2026-04-10 17:14:33,307 - mmrotate - INFO - Epoch [9][450/462]	lr: 8.000e-03, eta: 1:25:00, time: 0.862, data_time: 0.148, memory: 4352, loss_cls: 0.0429, loss_pts_init: 0.1503, loss_pts_refine: 0.1240, loss_spatial_init: 0.0197, loss_spatial_refine: 0.0003, loss: 0.3373, grad_norm: 2.1304
+2026-04-10 17:15:16,606 - mmrotate - INFO - 
++-------------+-----+------+--------+-------+
+| class       | gts | dets | recall | ap    |
++-------------+-----+------+--------+-------+
+| R0402       | 366 | 1983 | 0.820  | 0.770 |
+| R0603       | 363 | 2035 | 0.975  | 0.905 |
+| LED0603     | 348 | 1362 | 0.994  | 0.909 |
+| R0804       | 771 | 1417 | 0.996  | 0.906 |
+| R2512       | 93  | 204  | 1.000  | 1.000 |
+| CAP5053     | 27  | 134  | 1.000  | 1.000 |
+| LQFP7070    | 21  | 107  | 1.000  | 1.000 |
+| SOIC-8      | 48  | 295  | 1.000  | 1.000 |
+| SOT-23      | 57  | 84   | 1.000  | 1.000 |
+| TSSOP-20    | 48  | 275  | 1.000  | 1.000 |
+| LED0603Flip | 69  | 503  | 1.000  | 1.000 |
++-------------+-----+------+--------+-------+
+| mAP         |     |      |        | 0.954 |
++-------------+-----+------+--------+-------+
+2026-04-10 17:15:16,684 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 17:15:16,685 - mmrotate - INFO - Epoch(val) [9][177]	mAP: 0.9536
+2026-04-10 17:16:18,968 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 17:16:18,968 - mmrotate - INFO - Epoch(val) [9][89]	loss_cls_val: 0.0509, loss_pts_init_val: 0.1766, loss_pts_refine_val: 0.1449, loss_spatial_init_val: 0.0168, loss_spatial_refine_val: 0.0004, loss_val: 0.3896
+2026-04-10 17:17:03,860 - mmrotate - INFO - Epoch [10][50/462]	lr: 8.000e-03, eta: 1:24:13, time: 0.898, data_time: 0.190, memory: 4352, loss_cls: 0.0459, loss_pts_init: 0.1377, loss_pts_refine: 0.1168, loss_spatial_init: 0.0207, loss_spatial_refine: 0.0004, loss: 0.3214, grad_norm: 2.1652
+2026-04-10 17:17:48,229 - mmrotate - INFO - Epoch [10][100/462]	lr: 8.000e-03, eta: 1:23:49, time: 0.887, data_time: 0.160, memory: 4352, loss_cls: 0.0380, loss_pts_init: 0.1313, loss_pts_refine: 0.1100, loss_spatial_init: 0.0187, loss_spatial_refine: 0.0004, loss: 0.2984, grad_norm: 2.0972
+2026-04-10 17:18:32,449 - mmrotate - INFO - Epoch [10][150/462]	lr: 8.000e-03, eta: 1:23:24, time: 0.884, data_time: 0.151, memory: 4352, loss_cls: 0.0450, loss_pts_init: 0.1527, loss_pts_refine: 0.1256, loss_spatial_init: 0.0185, loss_spatial_refine: 0.0004, loss: 0.3423, grad_norm: 2.2712
+2026-04-10 17:19:15,563 - mmrotate - INFO - Epoch [10][200/462]	lr: 8.000e-03, eta: 1:22:56, time: 0.862, data_time: 0.159, memory: 4352, loss_cls: 0.0449, loss_pts_init: 0.1339, loss_pts_refine: 0.1202, loss_spatial_init: 0.0189, loss_spatial_refine: 0.0004, loss: 0.3183, grad_norm: 2.1169
+2026-04-10 17:19:58,593 - mmrotate - INFO - Epoch [10][250/462]	lr: 8.000e-03, eta: 1:22:28, time: 0.861, data_time: 0.150, memory: 4352, loss_cls: 0.0403, loss_pts_init: 0.1187, loss_pts_refine: 0.1149, loss_spatial_init: 0.0181, loss_spatial_refine: 0.0005, loss: 0.2924, grad_norm: 1.9860
+2026-04-10 17:20:41,402 - mmrotate - INFO - Epoch [10][300/462]	lr: 8.000e-03, eta: 1:22:00, time: 0.856, data_time: 0.158, memory: 4352, loss_cls: 0.0420, loss_pts_init: 0.1345, loss_pts_refine: 0.1234, loss_spatial_init: 0.0169, loss_spatial_refine: 0.0004, loss: 0.3171, grad_norm: 2.0497
+2026-04-10 17:21:24,991 - mmrotate - INFO - Epoch [10][350/462]	lr: 8.000e-03, eta: 1:21:32, time: 0.872, data_time: 0.147, memory: 4352, loss_cls: 0.0400, loss_pts_init: 0.1395, loss_pts_refine: 0.1155, loss_spatial_init: 0.0209, loss_spatial_refine: 0.0003, loss: 0.3163, grad_norm: 2.0938
+2026-04-10 17:22:09,172 - mmrotate - INFO - Epoch [10][400/462]	lr: 8.000e-03, eta: 1:21:05, time: 0.884, data_time: 0.157, memory: 4352, loss_cls: 0.0426, loss_pts_init: 0.1410, loss_pts_refine: 0.1176, loss_spatial_init: 0.0205, loss_spatial_refine: 0.0003, loss: 0.3219, grad_norm: 2.0255
+2026-04-10 17:22:52,234 - mmrotate - INFO - Epoch [10][450/462]	lr: 8.000e-03, eta: 1:20:36, time: 0.861, data_time: 0.147, memory: 4352, loss_cls: 0.0478, loss_pts_init: 0.1462, loss_pts_refine: 0.1206, loss_spatial_init: 0.0225, loss_spatial_refine: 0.0005, loss: 0.3376, grad_norm: 2.2617
+2026-04-10 17:23:02,355 - mmrotate - INFO - Saving checkpoint at 10 epochs
+2026-04-10 17:23:37,342 - mmrotate - INFO - 
++-------------+-----+------+--------+-------+
+| class       | gts | dets | recall | ap    |
++-------------+-----+------+--------+-------+
+| R0402       | 366 | 1604 | 0.885  | 0.802 |
+| R0603       | 363 | 1193 | 0.989  | 0.904 |
+| LED0603     | 348 | 925  | 0.986  | 0.909 |
+| R0804       | 771 | 1221 | 1.000  | 0.995 |
+| R2512       | 93  | 295  | 1.000  | 1.000 |
+| CAP5053     | 27  | 106  | 1.000  | 1.000 |
+| LQFP7070    | 21  | 62   | 1.000  | 0.977 |
+| SOIC-8      | 48  | 222  | 1.000  | 1.000 |
+| SOT-23      | 57  | 342  | 1.000  | 1.000 |
+| TSSOP-20    | 48  | 199  | 1.000  | 1.000 |
+| LED0603Flip | 69  | 488  | 1.000  | 1.000 |
++-------------+-----+------+--------+-------+
+| mAP         |     |      |        | 0.963 |
++-------------+-----+------+--------+-------+
+2026-04-10 17:23:37,411 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 17:23:37,411 - mmrotate - INFO - Epoch(val) [10][177]	mAP: 0.9625
+2026-04-10 17:24:37,914 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 17:24:37,915 - mmrotate - INFO - Epoch(val) [10][89]	loss_cls_val: 0.0467, loss_pts_init_val: 0.1548, loss_pts_refine_val: 0.1297, loss_spatial_init_val: 0.0191, loss_spatial_refine_val: 0.0003, loss_val: 0.3507
+2026-04-10 17:25:22,924 - mmrotate - INFO - Epoch [11][50/462]	lr: 8.000e-03, eta: 1:19:48, time: 0.900, data_time: 0.191, memory: 4352, loss_cls: 0.0371, loss_pts_init: 0.1339, loss_pts_refine: 0.1124, loss_spatial_init: 0.0218, loss_spatial_refine: 0.0004, loss: 0.3056, grad_norm: 2.0204
+2026-04-10 17:26:02,161 - mmrotate - INFO - Epoch [11][100/462]	lr: 8.000e-03, eta: 1:19:13, time: 0.785, data_time: 0.126, memory: 4352, loss_cls: 0.0346, loss_pts_init: 0.1348, loss_pts_refine: 0.1151, loss_spatial_init: 0.0195, loss_spatial_refine: 0.0003, loss: 0.3043, grad_norm: 1.9358
+2026-04-10 17:26:30,181 - mmrotate - INFO - Epoch [11][150/462]	lr: 8.000e-03, eta: 1:18:24, time: 0.560, data_time: 0.073, memory: 4352, loss_cls: 0.0337, loss_pts_init: 0.1279, loss_pts_refine: 0.1164, loss_spatial_init: 0.0179, loss_spatial_refine: 0.0004, loss: 0.2962, grad_norm: 1.9575
+2026-04-10 17:26:57,304 - mmrotate - INFO - Epoch [11][200/462]	lr: 8.000e-03, eta: 1:17:33, time: 0.542, data_time: 0.072, memory: 4352, loss_cls: 0.0360, loss_pts_init: 0.1376, loss_pts_refine: 0.1174, loss_spatial_init: 0.0209, loss_spatial_refine: 0.0004, loss: 0.3124, grad_norm: 2.1020
+2026-04-10 17:27:24,973 - mmrotate - INFO - Epoch [11][250/462]	lr: 8.000e-03, eta: 1:16:44, time: 0.553, data_time: 0.070, memory: 4352, loss_cls: 0.0348, loss_pts_init: 0.1376, loss_pts_refine: 0.1225, loss_spatial_init: 0.0219, loss_spatial_refine: 0.0004, loss: 0.3172, grad_norm: 2.0597
+2026-04-10 17:27:52,880 - mmrotate - INFO - Epoch [11][300/462]	lr: 8.000e-03, eta: 1:15:56, time: 0.558, data_time: 0.069, memory: 4352, loss_cls: 0.0389, loss_pts_init: 0.1423, loss_pts_refine: 0.1151, loss_spatial_init: 0.0185, loss_spatial_refine: 0.0003, loss: 0.3152, grad_norm: 2.0222
+2026-04-10 17:28:20,048 - mmrotate - INFO - Epoch [11][350/462]	lr: 8.000e-03, eta: 1:15:07, time: 0.543, data_time: 0.070, memory: 4352, loss_cls: 0.0457, loss_pts_init: 0.1233, loss_pts_refine: 0.1063, loss_spatial_init: 0.0210, loss_spatial_refine: 0.0004, loss: 0.2967, grad_norm: 2.1341
+2026-04-10 17:28:47,818 - mmrotate - INFO - Epoch [11][400/462]	lr: 8.000e-03, eta: 1:14:19, time: 0.555, data_time: 0.070, memory: 4352, loss_cls: 0.0374, loss_pts_init: 0.1242, loss_pts_refine: 0.1135, loss_spatial_init: 0.0175, loss_spatial_refine: 0.0004, loss: 0.2929, grad_norm: 1.9894
+2026-04-10 17:29:14,965 - mmrotate - INFO - Epoch [11][450/462]	lr: 8.000e-03, eta: 1:13:31, time: 0.543, data_time: 0.070, memory: 4352, loss_cls: 0.0347, loss_pts_init: 0.1259, loss_pts_refine: 0.1111, loss_spatial_init: 0.0200, loss_spatial_refine: 0.0004, loss: 0.2921, grad_norm: 2.0305
+2026-04-10 17:29:44,309 - mmrotate - INFO - 
++-------------+-----+------+--------+-------+
+| class       | gts | dets | recall | ap    |
++-------------+-----+------+--------+-------+
+| R0402       | 366 | 971  | 0.880  | 0.806 |
+| R0603       | 363 | 803  | 0.986  | 0.906 |
+| LED0603     | 348 | 673  | 0.994  | 0.904 |
+| R0804       | 771 | 1163 | 1.000  | 0.997 |
+| R2512       | 93  | 306  | 1.000  | 1.000 |
+| CAP5053     | 27  | 117  | 1.000  | 1.000 |
+| LQFP7070    | 21  | 79   | 1.000  | 0.984 |
+| SOIC-8      | 48  | 254  | 1.000  | 1.000 |
+| SOT-23      | 57  | 472  | 1.000  | 1.000 |
+| TSSOP-20    | 48  | 243  | 1.000  | 1.000 |
+| LED0603Flip | 69  | 405  | 1.000  | 1.000 |
++-------------+-----+------+--------+-------+
+| mAP         |     |      |        | 0.963 |
++-------------+-----+------+--------+-------+
+2026-04-10 17:29:44,380 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 17:29:44,380 - mmrotate - INFO - Epoch(val) [11][177]	mAP: 0.9634
+2026-04-10 17:30:19,858 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 17:30:19,858 - mmrotate - INFO - Epoch(val) [11][89]	loss_cls_val: 0.0416, loss_pts_init_val: 0.1516, loss_pts_refine_val: 0.1191, loss_spatial_init_val: 0.0157, loss_spatial_refine_val: 0.0003, loss_val: 0.3283
+2026-04-10 17:30:49,813 - mmrotate - INFO - Epoch [12][50/462]	lr: 8.000e-03, eta: 1:12:27, time: 0.599, data_time: 0.113, memory: 4352, loss_cls: 0.0338, loss_pts_init: 0.1307, loss_pts_refine: 0.1110, loss_spatial_init: 0.0192, loss_spatial_refine: 0.0004, loss: 0.2952, grad_norm: 2.1122
+2026-04-10 17:31:17,256 - mmrotate - INFO - Epoch [12][100/462]	lr: 8.000e-03, eta: 1:11:41, time: 0.549, data_time: 0.070, memory: 4352, loss_cls: 0.0378, loss_pts_init: 0.1294, loss_pts_refine: 0.1109, loss_spatial_init: 0.0203, loss_spatial_refine: 0.0004, loss: 0.2988, grad_norm: 2.0609
+2026-04-10 17:31:44,911 - mmrotate - INFO - Epoch [12][150/462]	lr: 8.000e-03, eta: 1:10:54, time: 0.553, data_time: 0.070, memory: 4352, loss_cls: 0.0371, loss_pts_init: 0.1297, loss_pts_refine: 0.1190, loss_spatial_init: 0.0167, loss_spatial_refine: 0.0004, loss: 0.3030, grad_norm: 2.1969
+2026-04-10 17:32:12,734 - mmrotate - INFO - Epoch [12][200/462]	lr: 8.000e-03, eta: 1:10:09, time: 0.556, data_time: 0.070, memory: 4352, loss_cls: 0.0336, loss_pts_init: 0.1244, loss_pts_refine: 0.1156, loss_spatial_init: 0.0172, loss_spatial_refine: 0.0003, loss: 0.2911, grad_norm: 1.8537
+2026-04-10 17:32:40,395 - mmrotate - INFO - Epoch [12][250/462]	lr: 8.000e-03, eta: 1:09:23, time: 0.553, data_time: 0.070, memory: 4352, loss_cls: 0.0282, loss_pts_init: 0.1135, loss_pts_refine: 0.1039, loss_spatial_init: 0.0168, loss_spatial_refine: 0.0004, loss: 0.2628, grad_norm: 1.8263
+2026-04-10 17:33:07,947 - mmrotate - INFO - Epoch [12][300/462]	lr: 8.000e-03, eta: 1:08:38, time: 0.551, data_time: 0.068, memory: 4352, loss_cls: 0.0386, loss_pts_init: 0.1113, loss_pts_refine: 0.1061, loss_spatial_init: 0.0211, loss_spatial_refine: 0.0003, loss: 0.2774, grad_norm: 1.9630
+2026-04-10 17:33:35,225 - mmrotate - INFO - Epoch [12][350/462]	lr: 8.000e-03, eta: 1:07:53, time: 0.546, data_time: 0.070, memory: 4352, loss_cls: 0.0318, loss_pts_init: 0.1120, loss_pts_refine: 0.1081, loss_spatial_init: 0.0192, loss_spatial_refine: 0.0004, loss: 0.2715, grad_norm: 1.9227
+2026-04-10 17:34:02,990 - mmrotate - INFO - Epoch [12][400/462]	lr: 8.000e-03, eta: 1:07:08, time: 0.555, data_time: 0.070, memory: 4352, loss_cls: 0.0319, loss_pts_init: 0.1226, loss_pts_refine: 0.1002, loss_spatial_init: 0.0207, loss_spatial_refine: 0.0003, loss: 0.2757, grad_norm: 1.9079
+2026-04-10 17:34:30,380 - mmrotate - INFO - Epoch [12][450/462]	lr: 8.000e-03, eta: 1:06:24, time: 0.548, data_time: 0.069, memory: 4352, loss_cls: 0.0309, loss_pts_init: 0.1271, loss_pts_refine: 0.1168, loss_spatial_init: 0.0222, loss_spatial_refine: 0.0004, loss: 0.2974, grad_norm: 2.0619
+2026-04-10 17:34:37,073 - mmrotate - INFO - Saving checkpoint at 12 epochs
+2026-04-10 17:35:00,409 - mmrotate - INFO - 
++-------------+-----+------+--------+-------+
+| class       | gts | dets | recall | ap    |
++-------------+-----+------+--------+-------+
+| R0402       | 366 | 1053 | 0.869  | 0.806 |
+| R0603       | 363 | 752  | 0.986  | 0.901 |
+| LED0603     | 348 | 1165 | 0.986  | 0.909 |
+| R0804       | 771 | 1079 | 1.000  | 0.996 |
+| R2512       | 93  | 329  | 1.000  | 1.000 |
+| CAP5053     | 27  | 93   | 1.000  | 1.000 |
+| LQFP7070    | 21  | 70   | 1.000  | 0.996 |
+| SOIC-8      | 48  | 96   | 1.000  | 1.000 |
+| SOT-23      | 57  | 191  | 0.982  | 0.909 |
+| TSSOP-20    | 48  | 222  | 1.000  | 1.000 |
+| LED0603Flip | 69  | 388  | 1.000  | 1.000 |
++-------------+-----+------+--------+-------+
+| mAP         |     |      |        | 0.956 |
++-------------+-----+------+--------+-------+
+2026-04-10 17:35:00,483 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 17:35:00,483 - mmrotate - INFO - Epoch(val) [12][177]	mAP: 0.9561
+2026-04-10 17:35:35,449 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 17:35:35,450 - mmrotate - INFO - Epoch(val) [12][89]	loss_cls_val: 0.0404, loss_pts_init_val: 0.1410, loss_pts_refine_val: 0.1239, loss_spatial_init_val: 0.0201, loss_spatial_refine_val: 0.0003, loss_val: 0.3258
+2026-04-10 17:36:04,404 - mmrotate - INFO - Epoch [13][50/462]	lr: 8.000e-03, eta: 1:05:24, time: 0.579, data_time: 0.107, memory: 4352, loss_cls: 0.0368, loss_pts_init: 0.1193, loss_pts_refine: 0.1104, loss_spatial_init: 0.0189, loss_spatial_refine: 0.0004, loss: 0.2858, grad_norm: 2.0291
+2026-04-10 17:36:31,914 - mmrotate - INFO - Epoch [13][100/462]	lr: 8.000e-03, eta: 1:04:40, time: 0.550, data_time: 0.068, memory: 4352, loss_cls: 0.0462, loss_pts_init: 0.1109, loss_pts_refine: 0.1052, loss_spatial_init: 0.0173, loss_spatial_refine: 0.0004, loss: 0.2800, grad_norm: 2.0196
+2026-04-10 17:36:59,573 - mmrotate - INFO - Epoch [13][150/462]	lr: 8.000e-03, eta: 1:03:57, time: 0.553, data_time: 0.069, memory: 4352, loss_cls: 0.0385, loss_pts_init: 0.1332, loss_pts_refine: 0.1109, loss_spatial_init: 0.0198, loss_spatial_refine: 0.0004, loss: 0.3027, grad_norm: 2.0326
+2026-04-10 17:37:27,195 - mmrotate - INFO - Epoch [13][200/462]	lr: 8.000e-03, eta: 1:03:14, time: 0.552, data_time: 0.067, memory: 4352, loss_cls: 0.0329, loss_pts_init: 0.1219, loss_pts_refine: 0.1026, loss_spatial_init: 0.0217, loss_spatial_refine: 0.0004, loss: 0.2794, grad_norm: 1.8870
+2026-04-10 17:37:54,688 - mmrotate - INFO - Epoch [13][250/462]	lr: 8.000e-03, eta: 1:02:31, time: 0.550, data_time: 0.068, memory: 4352, loss_cls: 0.0345, loss_pts_init: 0.1141, loss_pts_refine: 0.1026, loss_spatial_init: 0.0220, loss_spatial_refine: 0.0005, loss: 0.2737, grad_norm: 1.9739
+2026-04-10 17:38:22,193 - mmrotate - INFO - Epoch [13][300/462]	lr: 8.000e-03, eta: 1:01:49, time: 0.550, data_time: 0.070, memory: 4352, loss_cls: 0.0315, loss_pts_init: 0.1171, loss_pts_refine: 0.1051, loss_spatial_init: 0.0212, loss_spatial_refine: 0.0004, loss: 0.2752, grad_norm: 1.9740
+2026-04-10 17:38:49,582 - mmrotate - INFO - Epoch [13][350/462]	lr: 8.000e-03, eta: 1:01:06, time: 0.548, data_time: 0.068, memory: 4352, loss_cls: 0.0317, loss_pts_init: 0.1190, loss_pts_refine: 0.1076, loss_spatial_init: 0.0179, loss_spatial_refine: 0.0004, loss: 0.2766, grad_norm: 1.9203
+2026-04-10 17:39:17,211 - mmrotate - INFO - Epoch [13][400/462]	lr: 8.000e-03, eta: 1:00:24, time: 0.553, data_time: 0.069, memory: 4352, loss_cls: 0.0366, loss_pts_init: 0.1173, loss_pts_refine: 0.1024, loss_spatial_init: 0.0187, loss_spatial_refine: 0.0004, loss: 0.2754, grad_norm: 1.8988
+2026-04-10 17:39:45,178 - mmrotate - INFO - Epoch [13][450/462]	lr: 8.000e-03, eta: 0:59:43, time: 0.559, data_time: 0.068, memory: 4352, loss_cls: 0.0319, loss_pts_init: 0.1117, loss_pts_refine: 0.1067, loss_spatial_init: 0.0190, loss_spatial_refine: 0.0004, loss: 0.2696, grad_norm: 1.8408
+2026-04-10 17:40:13,813 - mmrotate - INFO - 
++-------------+-----+------+--------+-------+
+| class       | gts | dets | recall | ap    |
++-------------+-----+------+--------+-------+
+| R0402       | 366 | 1532 | 0.888  | 0.804 |
+| R0603       | 363 | 1252 | 0.994  | 0.906 |
+| LED0603     | 348 | 1274 | 0.994  | 0.909 |
+| R0804       | 771 | 1048 | 1.000  | 0.999 |
+| R2512       | 93  | 287  | 1.000  | 1.000 |
+| CAP5053     | 27  | 75   | 1.000  | 1.000 |
+| LQFP7070    | 21  | 56   | 1.000  | 1.000 |
+| SOIC-8      | 48  | 177  | 1.000  | 1.000 |
+| SOT-23      | 57  | 100  | 1.000  | 1.000 |
+| TSSOP-20    | 48  | 99   | 1.000  | 0.998 |
+| LED0603Flip | 69  | 666  | 0.971  | 0.885 |
++-------------+-----+------+--------+-------+
+| mAP         |     |      |        | 0.955 |
++-------------+-----+------+--------+-------+
+2026-04-10 17:40:13,892 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 17:40:13,892 - mmrotate - INFO - Epoch(val) [13][177]	mAP: 0.9547
+2026-04-10 17:40:48,837 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 17:40:48,837 - mmrotate - INFO - Epoch(val) [13][89]	loss_cls_val: 0.0460, loss_pts_init_val: 0.1387, loss_pts_refine_val: 0.1204, loss_spatial_init_val: 0.0174, loss_spatial_refine_val: 0.0003, loss_val: 0.3228
+2026-04-10 17:41:17,608 - mmrotate - INFO - Epoch [14][50/462]	lr: 8.000e-03, eta: 0:58:47, time: 0.575, data_time: 0.109, memory: 4352, loss_cls: 0.0319, loss_pts_init: 0.1082, loss_pts_refine: 0.1033, loss_spatial_init: 0.0204, loss_spatial_refine: 0.0005, loss: 0.2643, grad_norm: 1.9241
+2026-04-10 17:41:44,384 - mmrotate - INFO - Epoch [14][100/462]	lr: 8.000e-03, eta: 0:58:05, time: 0.536, data_time: 0.068, memory: 4352, loss_cls: 0.0284, loss_pts_init: 0.1159, loss_pts_refine: 0.0974, loss_spatial_init: 0.0213, loss_spatial_refine: 0.0004, loss: 0.2635, grad_norm: 1.9534
+2026-04-10 17:42:12,204 - mmrotate - INFO - Epoch [14][150/462]	lr: 8.000e-03, eta: 0:57:24, time: 0.556, data_time: 0.068, memory: 4352, loss_cls: 0.0288, loss_pts_init: 0.1163, loss_pts_refine: 0.1039, loss_spatial_init: 0.0191, loss_spatial_refine: 0.0003, loss: 0.2684, grad_norm: 1.8769
+2026-04-10 17:42:39,621 - mmrotate - INFO - Epoch [14][200/462]	lr: 8.000e-03, eta: 0:56:44, time: 0.548, data_time: 0.069, memory: 4352, loss_cls: 0.0298, loss_pts_init: 0.1067, loss_pts_refine: 0.1023, loss_spatial_init: 0.0148, loss_spatial_refine: 0.0004, loss: 0.2540, grad_norm: 1.8642
+2026-04-10 17:43:07,697 - mmrotate - INFO - Epoch [14][250/462]	lr: 8.000e-03, eta: 0:56:04, time: 0.562, data_time: 0.068, memory: 4352, loss_cls: 0.0334, loss_pts_init: 0.1196, loss_pts_refine: 0.1078, loss_spatial_init: 0.0162, loss_spatial_refine: 0.0003, loss: 0.2773, grad_norm: 1.8283
+2026-04-10 17:43:34,932 - mmrotate - INFO - Epoch [14][300/462]	lr: 8.000e-03, eta: 0:55:23, time: 0.545, data_time: 0.068, memory: 4352, loss_cls: 0.0355, loss_pts_init: 0.1021, loss_pts_refine: 0.1006, loss_spatial_init: 0.0178, loss_spatial_refine: 0.0004, loss: 0.2564, grad_norm: 1.9163
+2026-04-10 17:44:02,830 - mmrotate - INFO - Epoch [14][350/462]	lr: 8.000e-03, eta: 0:54:43, time: 0.558, data_time: 0.067, memory: 4352, loss_cls: 0.0310, loss_pts_init: 0.1155, loss_pts_refine: 0.1000, loss_spatial_init: 0.0230, loss_spatial_refine: 0.0004, loss: 0.2699, grad_norm: 1.9589
+2026-04-10 17:44:30,709 - mmrotate - INFO - Epoch [14][400/462]	lr: 8.000e-03, eta: 0:54:03, time: 0.558, data_time: 0.069, memory: 4352, loss_cls: 0.0295, loss_pts_init: 0.1100, loss_pts_refine: 0.1023, loss_spatial_init: 0.0189, loss_spatial_refine: 0.0004, loss: 0.2610, grad_norm: 2.0128
+2026-04-10 17:44:58,418 - mmrotate - INFO - Epoch [14][450/462]	lr: 8.000e-03, eta: 0:53:24, time: 0.554, data_time: 0.070, memory: 4352, loss_cls: 0.0327, loss_pts_init: 0.1146, loss_pts_refine: 0.0976, loss_spatial_init: 0.0204, loss_spatial_refine: 0.0003, loss: 0.2656, grad_norm: 1.8762
+2026-04-10 17:45:04,994 - mmrotate - INFO - Saving checkpoint at 14 epochs
+2026-04-10 17:45:27,928 - mmrotate - INFO - 
++-------------+-----+------+--------+-------+
+| class       | gts | dets | recall | ap    |
++-------------+-----+------+--------+-------+
+| R0402       | 366 | 806  | 0.888  | 0.808 |
+| R0603       | 363 | 675  | 0.986  | 0.904 |
+| LED0603     | 348 | 1093 | 0.986  | 0.909 |
+| R0804       | 771 | 1128 | 1.000  | 0.998 |
+| R2512       | 93  | 241  | 1.000  | 1.000 |
+| CAP5053     | 27  | 41   | 1.000  | 1.000 |
+| LQFP7070    | 21  | 99   | 1.000  | 1.000 |
+| SOIC-8      | 48  | 257  | 1.000  | 1.000 |
+| SOT-23      | 57  | 186  | 1.000  | 1.000 |
+| TSSOP-20    | 48  | 441  | 1.000  | 1.000 |
+| LED0603Flip | 69  | 377  | 0.986  | 0.899 |
++-------------+-----+------+--------+-------+
+| mAP         |     |      |        | 0.956 |
++-------------+-----+------+--------+-------+
+2026-04-10 17:45:28,009 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 17:45:28,009 - mmrotate - INFO - Epoch(val) [14][177]	mAP: 0.9561
+2026-04-10 17:46:02,645 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 17:46:02,645 - mmrotate - INFO - Epoch(val) [14][89]	loss_cls_val: 0.0404, loss_pts_init_val: 0.1269, loss_pts_refine_val: 0.1173, loss_spatial_init_val: 0.0191, loss_spatial_refine_val: 0.0004, loss_val: 0.3042
+2026-04-10 17:46:32,688 - mmrotate - INFO - Epoch [15][50/462]	lr: 8.000e-03, eta: 0:52:32, time: 0.601, data_time: 0.111, memory: 4352, loss_cls: 0.0283, loss_pts_init: 0.1013, loss_pts_refine: 0.0982, loss_spatial_init: 0.0171, loss_spatial_refine: 0.0003, loss: 0.2453, grad_norm: 1.7918
+2026-04-10 17:47:00,521 - mmrotate - INFO - Epoch [15][100/462]	lr: 8.000e-03, eta: 0:51:53, time: 0.557, data_time: 0.070, memory: 4352, loss_cls: 0.0286, loss_pts_init: 0.0991, loss_pts_refine: 0.0983, loss_spatial_init: 0.0179, loss_spatial_refine: 0.0004, loss: 0.2443, grad_norm: 1.8330
+2026-04-10 17:47:28,253 - mmrotate - INFO - Epoch [15][150/462]	lr: 8.000e-03, eta: 0:51:14, time: 0.555, data_time: 0.069, memory: 4352, loss_cls: 0.0287, loss_pts_init: 0.1064, loss_pts_refine: 0.1003, loss_spatial_init: 0.0200, loss_spatial_refine: 0.0004, loss: 0.2558, grad_norm: 1.8595
+2026-04-10 17:47:55,598 - mmrotate - INFO - Epoch [15][200/462]	lr: 8.000e-03, eta: 0:50:35, time: 0.547, data_time: 0.068, memory: 4352, loss_cls: 0.0304, loss_pts_init: 0.1056, loss_pts_refine: 0.0988, loss_spatial_init: 0.0194, loss_spatial_refine: 0.0004, loss: 0.2546, grad_norm: 1.7942
+2026-04-10 17:48:23,867 - mmrotate - INFO - Epoch [15][250/462]	lr: 8.000e-03, eta: 0:49:57, time: 0.565, data_time: 0.069, memory: 4352, loss_cls: 0.0309, loss_pts_init: 0.1122, loss_pts_refine: 0.0948, loss_spatial_init: 0.0204, loss_spatial_refine: 0.0003, loss: 0.2586, grad_norm: 1.8720
+2026-04-10 17:48:51,252 - mmrotate - INFO - Epoch [15][300/462]	lr: 8.000e-03, eta: 0:49:18, time: 0.548, data_time: 0.067, memory: 4352, loss_cls: 0.0311, loss_pts_init: 0.0956, loss_pts_refine: 0.0985, loss_spatial_init: 0.0167, loss_spatial_refine: 0.0004, loss: 0.2423, grad_norm: 1.8451
+2026-04-10 17:49:18,838 - mmrotate - INFO - Epoch [15][350/462]	lr: 8.000e-03, eta: 0:48:39, time: 0.552, data_time: 0.068, memory: 4352, loss_cls: 0.0333, loss_pts_init: 0.1173, loss_pts_refine: 0.1029, loss_spatial_init: 0.0215, loss_spatial_refine: 0.0005, loss: 0.2754, grad_norm: 2.1004
+2026-04-10 17:49:45,289 - mmrotate - INFO - Epoch [15][400/462]	lr: 8.000e-03, eta: 0:48:00, time: 0.529, data_time: 0.068, memory: 4352, loss_cls: 0.0316, loss_pts_init: 0.1305, loss_pts_refine: 0.0977, loss_spatial_init: 0.0233, loss_spatial_refine: 0.0005, loss: 0.2836, grad_norm: 2.1717
+2026-04-10 17:50:13,083 - mmrotate - INFO - Epoch [15][450/462]	lr: 8.000e-03, eta: 0:47:23, time: 0.556, data_time: 0.069, memory: 4352, loss_cls: 0.0332, loss_pts_init: 0.1205, loss_pts_refine: 0.1006, loss_spatial_init: 0.0206, loss_spatial_refine: 0.0004, loss: 0.2752, grad_norm: 1.9317
+2026-04-10 17:50:41,659 - mmrotate - INFO - 
++-------------+-----+------+--------+-------+
+| class       | gts | dets | recall | ap    |
++-------------+-----+------+--------+-------+
+| R0402       | 366 | 607  | 0.896  | 0.810 |
+| R0603       | 363 | 584  | 1.000  | 0.998 |
+| LED0603     | 348 | 637  | 0.989  | 0.907 |
+| R0804       | 771 | 1134 | 1.000  | 0.999 |
+| R2512       | 93  | 158  | 1.000  | 1.000 |
+| CAP5053     | 27  | 82   | 1.000  | 1.000 |
+| LQFP7070    | 21  | 118  | 1.000  | 1.000 |
+| SOIC-8      | 48  | 135  | 1.000  | 1.000 |
+| SOT-23      | 57  | 328  | 1.000  | 1.000 |
+| TSSOP-20    | 48  | 252  | 1.000  | 1.000 |
+| LED0603Flip | 69  | 293  | 0.971  | 0.885 |
++-------------+-----+------+--------+-------+
+| mAP         |     |      |        | 0.964 |
++-------------+-----+------+--------+-------+
+2026-04-10 17:50:41,738 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 17:50:41,738 - mmrotate - INFO - Epoch(val) [15][177]	mAP: 0.9635
+2026-04-10 17:51:17,004 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 17:51:17,004 - mmrotate - INFO - Epoch(val) [15][89]	loss_cls_val: 0.0408, loss_pts_init_val: 0.1501, loss_pts_refine_val: 0.1195, loss_spatial_init_val: 0.0164, loss_spatial_refine_val: 0.0003, loss_val: 0.3271
+2026-04-10 17:51:47,654 - mmrotate - INFO - Epoch [16][50/462]	lr: 8.000e-03, eta: 0:46:33, time: 0.613, data_time: 0.110, memory: 4352, loss_cls: 0.0274, loss_pts_init: 0.1050, loss_pts_refine: 0.1057, loss_spatial_init: 0.0158, loss_spatial_refine: 0.0003, loss: 0.2542, grad_norm: 1.6773
+2026-04-10 17:52:14,295 - mmrotate - INFO - Epoch [16][100/462]	lr: 8.000e-03, eta: 0:45:55, time: 0.533, data_time: 0.067, memory: 4352, loss_cls: 0.0447, loss_pts_init: 0.0956, loss_pts_refine: 0.0923, loss_spatial_init: 0.0217, loss_spatial_refine: 0.0005, loss: 0.2549, grad_norm: 2.1144
+2026-04-10 17:52:42,216 - mmrotate - INFO - Epoch [16][150/462]	lr: 8.000e-03, eta: 0:45:18, time: 0.558, data_time: 0.069, memory: 4352, loss_cls: 0.0302, loss_pts_init: 0.1056, loss_pts_refine: 0.0989, loss_spatial_init: 0.0196, loss_spatial_refine: 0.0004, loss: 0.2547, grad_norm: 1.7676
+2026-04-10 17:53:09,303 - mmrotate - INFO - Epoch [16][200/462]	lr: 8.000e-03, eta: 0:44:40, time: 0.542, data_time: 0.069, memory: 4352, loss_cls: 0.0296, loss_pts_init: 0.1064, loss_pts_refine: 0.0880, loss_spatial_init: 0.0239, loss_spatial_refine: 0.0004, loss: 0.2482, grad_norm: 1.9350
+2026-04-10 17:53:36,404 - mmrotate - INFO - Epoch [16][250/462]	lr: 8.000e-03, eta: 0:44:03, time: 0.542, data_time: 0.070, memory: 4352, loss_cls: 0.0285, loss_pts_init: 0.1169, loss_pts_refine: 0.0982, loss_spatial_init: 0.0226, loss_spatial_refine: 0.0004, loss: 0.2666, grad_norm: 1.9559
+2026-04-10 17:54:04,106 - mmrotate - INFO - Epoch [16][300/462]	lr: 8.000e-03, eta: 0:43:25, time: 0.554, data_time: 0.069, memory: 4352, loss_cls: 0.0272, loss_pts_init: 0.1044, loss_pts_refine: 0.0966, loss_spatial_init: 0.0198, loss_spatial_refine: 0.0004, loss: 0.2484, grad_norm: 1.9084
+2026-04-10 17:54:32,079 - mmrotate - INFO - Epoch [16][350/462]	lr: 8.000e-03, eta: 0:42:49, time: 0.559, data_time: 0.070, memory: 4352, loss_cls: 0.0278, loss_pts_init: 0.1099, loss_pts_refine: 0.0988, loss_spatial_init: 0.0199, loss_spatial_refine: 0.0003, loss: 0.2566, grad_norm: 1.7568
+2026-04-10 17:55:00,752 - mmrotate - INFO - Epoch [16][400/462]	lr: 8.000e-03, eta: 0:42:12, time: 0.573, data_time: 0.068, memory: 4352, loss_cls: 0.0270, loss_pts_init: 0.0994, loss_pts_refine: 0.0943, loss_spatial_init: 0.0170, loss_spatial_refine: 0.0003, loss: 0.2380, grad_norm: 1.6670
+2026-04-10 17:55:27,776 - mmrotate - INFO - Epoch [16][450/462]	lr: 8.000e-03, eta: 0:41:35, time: 0.540, data_time: 0.068, memory: 4352, loss_cls: 0.0299, loss_pts_init: 0.0956, loss_pts_refine: 0.0928, loss_spatial_init: 0.0200, loss_spatial_refine: 0.0004, loss: 0.2387, grad_norm: 1.9066
+2026-04-10 17:55:34,258 - mmrotate - INFO - Saving checkpoint at 16 epochs
+2026-04-10 17:55:57,324 - mmrotate - INFO - 
++-------------+-----+------+--------+-------+
+| class       | gts | dets | recall | ap    |
++-------------+-----+------+--------+-------+
+| R0402       | 366 | 1995 | 0.872  | 0.810 |
+| R0603       | 363 | 919  | 0.989  | 0.903 |
+| LED0603     | 348 | 884  | 1.000  | 0.956 |
+| R0804       | 771 | 1071 | 1.000  | 0.998 |
+| R2512       | 93  | 238  | 1.000  | 1.000 |
+| CAP5053     | 27  | 77   | 1.000  | 1.000 |
+| LQFP7070    | 21  | 167  | 1.000  | 0.977 |
+| SOIC-8      | 48  | 84   | 1.000  | 1.000 |
+| SOT-23      | 57  | 337  | 1.000  | 1.000 |
+| TSSOP-20    | 48  | 141  | 1.000  | 1.000 |
+| LED0603Flip | 69  | 540  | 1.000  | 1.000 |
++-------------+-----+------+--------+-------+
+| mAP         |     |      |        | 0.968 |
++-------------+-----+------+--------+-------+
+2026-04-10 17:55:57,397 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 17:55:57,397 - mmrotate - INFO - Epoch(val) [16][177]	mAP: 0.9676
+2026-04-10 17:56:32,771 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 17:56:32,771 - mmrotate - INFO - Epoch(val) [16][89]	loss_cls_val: 0.0413, loss_pts_init_val: 0.1153, loss_pts_refine_val: 0.1130, loss_spatial_init_val: 0.0182, loss_spatial_refine_val: 0.0004, loss_val: 0.2882
+2026-04-10 17:57:02,700 - mmrotate - INFO - Epoch [17][50/462]	lr: 8.000e-03, eta: 0:40:48, time: 0.598, data_time: 0.109, memory: 4352, loss_cls: 0.0272, loss_pts_init: 0.0976, loss_pts_refine: 0.0977, loss_spatial_init: 0.0185, loss_spatial_refine: 0.0004, loss: 0.2414, grad_norm: 1.7791
+2026-04-10 17:57:29,733 - mmrotate - INFO - Epoch [17][100/462]	lr: 8.000e-03, eta: 0:40:11, time: 0.541, data_time: 0.070, memory: 4352, loss_cls: 0.0276, loss_pts_init: 0.0973, loss_pts_refine: 0.0965, loss_spatial_init: 0.0201, loss_spatial_refine: 0.0004, loss: 0.2419, grad_norm: 1.8465
+2026-04-10 17:57:58,299 - mmrotate - INFO - Epoch [17][150/462]	lr: 8.000e-03, eta: 0:39:35, time: 0.571, data_time: 0.071, memory: 4352, loss_cls: 0.0285, loss_pts_init: 0.1040, loss_pts_refine: 0.0911, loss_spatial_init: 0.0187, loss_spatial_refine: 0.0003, loss: 0.2426, grad_norm: 1.8055
+2026-04-10 17:58:42,117 - mmrotate - INFO - Epoch [17][200/462]	lr: 8.000e-03, eta: 0:39:06, time: 0.876, data_time: 0.148, memory: 4352, loss_cls: 0.0286, loss_pts_init: 0.1080, loss_pts_refine: 0.0986, loss_spatial_init: 0.0205, loss_spatial_refine: 0.0004, loss: 0.2561, grad_norm: 1.8590
+2026-04-10 17:59:25,346 - mmrotate - INFO - Epoch [17][250/462]	lr: 8.000e-03, eta: 0:38:37, time: 0.865, data_time: 0.146, memory: 4352, loss_cls: 0.0282, loss_pts_init: 0.1021, loss_pts_refine: 0.0965, loss_spatial_init: 0.0211, loss_spatial_refine: 0.0003, loss: 0.2482, grad_norm: 1.8185
+2026-04-10 18:00:08,911 - mmrotate - INFO - Epoch [17][300/462]	lr: 8.000e-03, eta: 0:38:08, time: 0.871, data_time: 0.145, memory: 4352, loss_cls: 0.0269, loss_pts_init: 0.0978, loss_pts_refine: 0.0931, loss_spatial_init: 0.0196, loss_spatial_refine: 0.0004, loss: 0.2379, grad_norm: 1.7515
+2026-04-10 18:00:50,775 - mmrotate - INFO - Epoch [17][350/462]	lr: 8.000e-03, eta: 0:37:38, time: 0.837, data_time: 0.140, memory: 4352, loss_cls: 0.0307, loss_pts_init: 0.0865, loss_pts_refine: 0.0890, loss_spatial_init: 0.0196, loss_spatial_refine: 0.0005, loss: 0.2263, grad_norm: 1.7172
+2026-04-10 18:01:32,637 - mmrotate - INFO - Epoch [17][400/462]	lr: 8.000e-03, eta: 0:37:08, time: 0.837, data_time: 0.125, memory: 4352, loss_cls: 0.0292, loss_pts_init: 0.1047, loss_pts_refine: 0.0920, loss_spatial_init: 0.0227, loss_spatial_refine: 0.0004, loss: 0.2491, grad_norm: 1.8844
+2026-04-10 18:02:15,463 - mmrotate - INFO - Epoch [17][450/462]	lr: 8.000e-03, eta: 0:36:37, time: 0.857, data_time: 0.140, memory: 4352, loss_cls: 0.0258, loss_pts_init: 0.0993, loss_pts_refine: 0.0941, loss_spatial_init: 0.0189, loss_spatial_refine: 0.0005, loss: 0.2386, grad_norm: 1.7583
+2026-04-10 18:02:57,327 - mmrotate - INFO - 
++-------------+-----+------+--------+-------+
+| class       | gts | dets | recall | ap    |
++-------------+-----+------+--------+-------+
+| R0402       | 366 | 561  | 0.904  | 0.891 |
+| R0603       | 363 | 777  | 1.000  | 0.998 |
+| LED0603     | 348 | 578  | 0.977  | 0.906 |
+| R0804       | 771 | 1001 | 1.000  | 0.998 |
+| R2512       | 93  | 305  | 1.000  | 1.000 |
+| CAP5053     | 27  | 88   | 1.000  | 1.000 |
+| LQFP7070    | 21  | 67   | 1.000  | 0.988 |
+| SOIC-8      | 48  | 141  | 1.000  | 1.000 |
+| SOT-23      | 57  | 180  | 1.000  | 1.000 |
+| TSSOP-20    | 48  | 116  | 1.000  | 1.000 |
+| LED0603Flip | 69  | 269  | 1.000  | 1.000 |
++-------------+-----+------+--------+-------+
+| mAP         |     |      |        | 0.980 |
++-------------+-----+------+--------+-------+
+2026-04-10 18:02:57,405 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 18:02:57,406 - mmrotate - INFO - Epoch(val) [17][177]	mAP: 0.9802
+2026-04-10 18:03:58,222 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 18:03:58,222 - mmrotate - INFO - Epoch(val) [17][89]	loss_cls_val: 0.0409, loss_pts_init_val: 0.1294, loss_pts_refine_val: 0.1110, loss_spatial_init_val: 0.0180, loss_spatial_refine_val: 0.0003, loss_val: 0.2996
+2026-04-10 18:04:42,730 - mmrotate - INFO - Epoch [18][50/462]	lr: 8.000e-03, eta: 0:35:56, time: 0.890, data_time: 0.189, memory: 4352, loss_cls: 0.0277, loss_pts_init: 0.0968, loss_pts_refine: 0.0901, loss_spatial_init: 0.0189, loss_spatial_refine: 0.0004, loss: 0.2339, grad_norm: 1.8555
+2026-04-10 18:05:24,386 - mmrotate - INFO - Epoch [18][100/462]	lr: 8.000e-03, eta: 0:35:26, time: 0.833, data_time: 0.143, memory: 4352, loss_cls: 0.0266, loss_pts_init: 0.1019, loss_pts_refine: 0.0921, loss_spatial_init: 0.0202, loss_spatial_refine: 0.0003, loss: 0.2411, grad_norm: 1.8053
+2026-04-10 18:06:00,918 - mmrotate - INFO - Epoch [18][150/462]	lr: 8.000e-03, eta: 0:34:53, time: 0.731, data_time: 0.117, memory: 4352, loss_cls: 0.0242, loss_pts_init: 0.0994, loss_pts_refine: 0.0933, loss_spatial_init: 0.0199, loss_spatial_refine: 0.0004, loss: 0.2372, grad_norm: 1.8654
+2026-04-10 18:06:34,076 - mmrotate - INFO - Epoch [18][200/462]	lr: 8.000e-03, eta: 0:34:19, time: 0.663, data_time: 0.093, memory: 4352, loss_cls: 0.0255, loss_pts_init: 0.0939, loss_pts_refine: 0.0895, loss_spatial_init: 0.0208, loss_spatial_refine: 0.0004, loss: 0.2301, grad_norm: 1.6850
+2026-04-10 18:07:09,558 - mmrotate - INFO - Epoch [18][250/462]	lr: 8.000e-03, eta: 0:33:45, time: 0.710, data_time: 0.104, memory: 4352, loss_cls: 0.0260, loss_pts_init: 0.1001, loss_pts_refine: 0.0902, loss_spatial_init: 0.0175, loss_spatial_refine: 0.0004, loss: 0.2342, grad_norm: 1.7949
+2026-04-10 18:07:50,577 - mmrotate - INFO - Epoch [18][300/462]	lr: 8.000e-03, eta: 0:33:14, time: 0.820, data_time: 0.129, memory: 4352, loss_cls: 0.0330, loss_pts_init: 0.0942, loss_pts_refine: 0.0893, loss_spatial_init: 0.0183, loss_spatial_refine: 0.0003, loss: 0.2352, grad_norm: 1.8187
+2026-04-10 18:08:28,392 - mmrotate - INFO - Epoch [18][350/462]	lr: 8.000e-03, eta: 0:32:41, time: 0.756, data_time: 0.117, memory: 4352, loss_cls: 0.0310, loss_pts_init: 0.0911, loss_pts_refine: 0.0883, loss_spatial_init: 0.0186, loss_spatial_refine: 0.0004, loss: 0.2295, grad_norm: 1.7079
+2026-04-10 18:09:05,758 - mmrotate - INFO - Epoch [18][400/462]	lr: 8.000e-03, eta: 0:32:08, time: 0.747, data_time: 0.116, memory: 4352, loss_cls: 0.0306, loss_pts_init: 0.1001, loss_pts_refine: 0.0897, loss_spatial_init: 0.0221, loss_spatial_refine: 0.0004, loss: 0.2429, grad_norm: 1.8275
+2026-04-10 18:09:42,957 - mmrotate - INFO - Epoch [18][450/462]	lr: 8.000e-03, eta: 0:31:35, time: 0.744, data_time: 0.113, memory: 4352, loss_cls: 0.0284, loss_pts_init: 0.1012, loss_pts_refine: 0.0957, loss_spatial_init: 0.0193, loss_spatial_refine: 0.0004, loss: 0.2449, grad_norm: 1.8038
+2026-04-10 18:09:51,788 - mmrotate - INFO - Saving checkpoint at 18 epochs
+2026-04-10 18:10:21,641 - mmrotate - INFO - 
++-------------+-----+------+--------+-------+
+| class       | gts | dets | recall | ap    |
++-------------+-----+------+--------+-------+
+| R0402       | 366 | 935  | 0.913  | 0.894 |
+| R0603       | 363 | 763  | 0.983  | 0.903 |
+| LED0603     | 348 | 541  | 0.994  | 0.909 |
+| R0804       | 771 | 1240 | 1.000  | 0.997 |
+| R2512       | 93  | 351  | 1.000  | 1.000 |
+| CAP5053     | 27  | 58   | 1.000  | 1.000 |
+| LQFP7070    | 21  | 31   | 1.000  | 1.000 |
+| SOIC-8      | 48  | 103  | 1.000  | 1.000 |
+| SOT-23      | 57  | 245  | 1.000  | 1.000 |
+| TSSOP-20    | 48  | 116  | 1.000  | 1.000 |
+| LED0603Flip | 69  | 120  | 0.986  | 0.897 |
++-------------+-----+------+--------+-------+
+| mAP         |     |      |        | 0.964 |
++-------------+-----+------+--------+-------+
+2026-04-10 18:10:21,719 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 18:10:21,719 - mmrotate - INFO - Epoch(val) [18][177]	mAP: 0.9637
+2026-04-10 18:11:12,756 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 18:11:12,756 - mmrotate - INFO - Epoch(val) [18][89]	loss_cls_val: 0.0415, loss_pts_init_val: 0.1183, loss_pts_refine_val: 0.1083, loss_spatial_init_val: 0.0172, loss_spatial_refine_val: 0.0003, loss_val: 0.2857
+2026-04-10 18:11:52,174 - mmrotate - INFO - Epoch [19][50/462]	lr: 8.000e-03, eta: 0:30:52, time: 0.788, data_time: 0.154, memory: 4352, loss_cls: 0.0269, loss_pts_init: 0.0969, loss_pts_refine: 0.0936, loss_spatial_init: 0.0191, loss_spatial_refine: 0.0004, loss: 0.2370, grad_norm: 1.7777
+2026-04-10 18:12:29,362 - mmrotate - INFO - Epoch [19][100/462]	lr: 8.000e-03, eta: 0:30:19, time: 0.744, data_time: 0.115, memory: 4352, loss_cls: 0.0266, loss_pts_init: 0.1022, loss_pts_refine: 0.0906, loss_spatial_init: 0.0188, loss_spatial_refine: 0.0004, loss: 0.2385, grad_norm: 1.7823
+2026-04-10 18:13:05,911 - mmrotate - INFO - Epoch [19][150/462]	lr: 8.000e-03, eta: 0:29:46, time: 0.731, data_time: 0.116, memory: 4352, loss_cls: 0.0269, loss_pts_init: 0.1009, loss_pts_refine: 0.0860, loss_spatial_init: 0.0223, loss_spatial_refine: 0.0003, loss: 0.2365, grad_norm: 1.8080
+2026-04-10 18:13:42,637 - mmrotate - INFO - Epoch [19][200/462]	lr: 8.000e-03, eta: 0:29:13, time: 0.734, data_time: 0.115, memory: 4352, loss_cls: 0.0260, loss_pts_init: 0.0919, loss_pts_refine: 0.0865, loss_spatial_init: 0.0181, loss_spatial_refine: 0.0004, loss: 0.2231, grad_norm: 1.7200
+2026-04-10 18:14:19,673 - mmrotate - INFO - Epoch [19][250/462]	lr: 8.000e-03, eta: 0:28:39, time: 0.741, data_time: 0.114, memory: 4352, loss_cls: 0.0247, loss_pts_init: 0.0844, loss_pts_refine: 0.0862, loss_spatial_init: 0.0168, loss_spatial_refine: 0.0004, loss: 0.2125, grad_norm: 1.6216
+2026-04-10 18:14:56,926 - mmrotate - INFO - Epoch [19][300/462]	lr: 8.000e-03, eta: 0:28:06, time: 0.745, data_time: 0.115, memory: 4352, loss_cls: 0.0266, loss_pts_init: 0.1091, loss_pts_refine: 0.0959, loss_spatial_init: 0.0182, loss_spatial_refine: 0.0004, loss: 0.2501, grad_norm: 1.8589
+2026-04-10 18:15:34,833 - mmrotate - INFO - Epoch [19][350/462]	lr: 8.000e-03, eta: 0:27:33, time: 0.758, data_time: 0.113, memory: 4352, loss_cls: 0.0295, loss_pts_init: 0.1023, loss_pts_refine: 0.0889, loss_spatial_init: 0.0209, loss_spatial_refine: 0.0003, loss: 0.2419, grad_norm: 1.9275
+2026-04-10 18:16:11,243 - mmrotate - INFO - Epoch [19][400/462]	lr: 8.000e-03, eta: 0:27:00, time: 0.728, data_time: 0.113, memory: 4352, loss_cls: 0.0309, loss_pts_init: 0.1004, loss_pts_refine: 0.0916, loss_spatial_init: 0.0217, loss_spatial_refine: 0.0004, loss: 0.2450, grad_norm: 1.8114
+2026-04-10 18:16:42,405 - mmrotate - INFO - Epoch [19][450/462]	lr: 8.000e-03, eta: 0:26:25, time: 0.623, data_time: 0.086, memory: 4352, loss_cls: 0.0292, loss_pts_init: 0.1008, loss_pts_refine: 0.0889, loss_spatial_init: 0.0228, loss_spatial_refine: 0.0005, loss: 0.2421, grad_norm: 1.8863
+2026-04-10 18:17:11,014 - mmrotate - INFO - 
++-------------+-----+------+--------+-------+
+| class       | gts | dets | recall | ap    |
++-------------+-----+------+--------+-------+
+| R0402       | 366 | 978  | 0.913  | 0.893 |
+| R0603       | 363 | 542  | 0.986  | 0.903 |
+| LED0603     | 348 | 909  | 0.994  | 0.909 |
+| R0804       | 771 | 938  | 1.000  | 0.997 |
+| R2512       | 93  | 330  | 1.000  | 1.000 |
+| CAP5053     | 27  | 43   | 1.000  | 1.000 |
+| LQFP7070    | 21  | 58   | 1.000  | 0.977 |
+| SOIC-8      | 48  | 126  | 1.000  | 1.000 |
+| SOT-23      | 57  | 151  | 0.982  | 0.909 |
+| TSSOP-20    | 48  | 167  | 1.000  | 1.000 |
+| LED0603Flip | 69  | 536  | 1.000  | 1.000 |
++-------------+-----+------+--------+-------+
+| mAP         |     |      |        | 0.963 |
++-------------+-----+------+--------+-------+
+2026-04-10 18:17:11,093 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 18:17:11,094 - mmrotate - INFO - Epoch(val) [19][177]	mAP: 0.9626
+2026-04-10 18:17:46,721 - mmrotate - INFO - Exp name: oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py
+2026-04-10 18:17:46,721 - mmrotate - INFO - Epoch(val) [19][89]	loss_cls_val: 0.0434, loss_pts_init_val: 0.1214, loss_pts_refine_val: 0.1127, loss_spatial_init_val: 0.0184, loss_spatial_refine_val: 0.0004, loss_val: 0.2962

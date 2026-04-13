@@ -1,0 +1,19 @@
+{
+  "config": "D:\\mmrotate-main\\customize-dataset-workshop\\output\\roi_trans_dotav2\\roi_trans_r50_fpn_fp16_1x_dota_le90_custom.py",
+  "result_pkl": "D:\\mmrotate-main\\customize-dataset-workshop\\output\\roi_trans_dotav2\\latest_test_results.pkl",
+  "iou_thr": 0.75,
+  "num_images": 222,
+  "num_classes": 11,
+  "num_detections": 2339,
+  "num_gts_total": 2226,
+  "ap_from_pr_curve": 0.8465686738175666,
+  "best_f1": 0.8897601476014759,
+  "best_confidence_threshold": 0.99,
+  "precision_at_best_f1": 0.9142180094786729,
+  "recall_at_best_f1": 0.866576819407008,
+  "outputs": {
+    "pr_curve": "D:\\mmrotate-main\\customize-dataset-workshop\\output\\roi_trans_dotav2\\latest_pr_curve_iou75.png",
+    "precision_confidence_curve": "D:\\mmrotate-main\\customize-dataset-workshop\\output\\roi_trans_dotav2\\latest_precision_confidence_curve_iou75.png",
+    "f1_confidence_curve": "D:\\mmrotate-main\\customize-dataset-workshop\\output\\roi_trans_dotav2\\latest_f1_confidence_curve_iou75.png"
+  }
+}

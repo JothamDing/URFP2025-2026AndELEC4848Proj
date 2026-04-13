@@ -1,0 +1,317 @@
+2026-04-07 19:00:30,248 - mmrotate - INFO - Environment info:
+------------------------------------------------------------
+sys.platform: win32
+Python: 3.9.25 (main, Nov  3 2025, 22:44:01) [MSC v.1929 64 bit (AMD64)]
+CUDA available: True
+GPU 0: NVIDIA GeForce RTX 5060
+CUDA_HOME: C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.8
+NVCC: Cuda compilation tools, release 12.8, V12.8.61
+MSVC: 用于 x64 的 Microsoft (R) C/C++ 优化编译器 19.42.34444 版
+GCC: n/a
+PyTorch: 2.8.0+cu128
+PyTorch compiling details: PyTorch built with:
+  - C++ Version: 201703
+  - MSVC 193833145
+  - Intel(R) oneAPI Math Kernel Library Version 2025.2-Product Build 20250620 for Intel(R) 64 architecture applications
+  - Intel(R) MKL-DNN v3.7.1 (Git Hash 8d263e693366ef8db40acc569cc7d8edf644556d)
+  - OpenMP 2019
+  - LAPACK is enabled (usually provided by MKL)
+  - CPU capability usage: AVX2
+  - CUDA Runtime 12.8
+  - NVCC architecture flags: -gencode;arch=compute_61,code=sm_61;-gencode;arch=compute_70,code=sm_70;-gencode;arch=compute_75,code=sm_75;-gencode;arch=compute_80,code=sm_80;-gencode;arch=compute_86,code=sm_86;-gencode;arch=compute_90,code=sm_90;-gencode;arch=compute_100,code=sm_100;-gencode;arch=compute_120,code=sm_120
+  - CuDNN 91.0.2  (built against CUDA 12.9)
+  - Magma 2.5.4
+  - Build settings: BLAS_INFO=mkl, BUILD_TYPE=Release, COMMIT_SHA=a1cb3cc05d46d198467bebbb6e8fba50a325d4e7, CUDA_VERSION=12.8, CUDNN_VERSION=9.10.2, CXX_COMPILER=C:/actions-runner/_work/pytorch/pytorch/pytorch/.ci/pytorch/windows/tmp_bin/sccache-cl.exe, CXX_FLAGS=/DWIN32 /D_WINDOWS /EHsc /Zc:__cplusplus /bigobj /FS /utf-8 -DUSE_PTHREADPOOL -DNDEBUG -DUSE_KINETO -DLIBKINETO_NOROCTRACER -DLIBKINETO_NOXPUPTI=ON -DUSE_FBGEMM -DUSE_XNNPACK -DSYMBOLICATE_MOBILE_DEBUG_HANDLE /wd4624 /wd4068 /wd4067 /wd4267 /wd4661 /wd4717 /wd4244 /wd4804 /wd4273, LAPACK_INFO=mkl, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, TORCH_VERSION=2.8.0, USE_CUDA=ON, USE_CUDNN=ON, USE_CUSPARSELT=OFF, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_GLOO=ON, USE_MKL=ON, USE_MKLDNN=ON, USE_MPI=OFF, USE_NCCL=OFF, USE_NNPACK=OFF, USE_OPENMP=ON, USE_ROCM=OFF, USE_ROCM_KERNEL_ASSERT=OFF, USE_XCCL=OFF, USE_XPU=OFF, 
+
+TorchVision: 0.23.0+cu128
+OpenCV: 4.13.0
+MMCV: 1.7.2
+MMCV Compiler: MSVC 194234444
+MMCV CUDA Compiler: 12.8
+MMRotate: 0.3.4+
+------------------------------------------------------------
+
+2026-04-07 19:00:30,687 - mmrotate - INFO - Distributed training: False
+2026-04-07 19:00:31,194 - mmrotate - INFO - Config:
+dataset_type = 'DOTADataset'
+data_root = 'customize-dataset-workshop/data/split_ss_dotav1.4/'
+img_norm_cfg = dict(
+    mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
+train_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(type='LoadAnnotations', with_bbox=True),
+    dict(type='RResize', img_scale=(1024, 1024)),
+    dict(
+        type='RRandomFlip',
+        flip_ratio=[0.25, 0.25, 0.25],
+        direction=['horizontal', 'vertical', 'diagonal'],
+        version='le90'),
+    dict(
+        type='Normalize',
+        mean=[123.675, 116.28, 103.53],
+        std=[58.395, 57.12, 57.375],
+        to_rgb=True),
+    dict(type='Pad', size_divisor=32),
+    dict(type='DefaultFormatBundle'),
+    dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels'])
+]
+test_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(
+        type='MultiScaleFlipAug',
+        img_scale=(1024, 1024),
+        flip=False,
+        transforms=[
+            dict(type='RResize'),
+            dict(
+                type='Normalize',
+                mean=[123.675, 116.28, 103.53],
+                std=[58.395, 57.12, 57.375],
+                to_rgb=True),
+            dict(type='Pad', size_divisor=32),
+            dict(type='DefaultFormatBundle'),
+            dict(type='Collect', keys=['img'])
+        ])
+]
+data = dict(
+    samples_per_gpu=2,
+    workers_per_gpu=0,
+    train=dict(
+        type='DOTADataset',
+        ann_file=
+        'customize-dataset-workshop/data/split_ss_dotav1.4/train/annfiles/',
+        img_prefix=
+        'customize-dataset-workshop/data/split_ss_dotav1.4/train/images/',
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(type='LoadAnnotations', with_bbox=True),
+            dict(type='RResize', img_scale=(1024, 1024)),
+            dict(
+                type='RRandomFlip',
+                flip_ratio=[0.25, 0.25, 0.25],
+                direction=['horizontal', 'vertical', 'diagonal'],
+                version='le90'),
+            dict(
+                type='Normalize',
+                mean=[123.675, 116.28, 103.53],
+                std=[58.395, 57.12, 57.375],
+                to_rgb=True),
+            dict(type='Pad', size_divisor=32),
+            dict(type='DefaultFormatBundle'),
+            dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels'])
+        ],
+        version='le90',
+        classes=('R0402', 'R0603', 'LED0603', 'R0804', 'R2512', 'CAP5053',
+                 'LQFP7070', 'SOIC-8', 'SOT-23', 'TSSOP-20', 'LED0603Flip')),
+    val=dict(
+        type='DOTADataset',
+        ann_file=
+        'customize-dataset-workshop/data/split_ss_dotav1.4/val/annfiles/',
+        img_prefix=
+        'customize-dataset-workshop/data/split_ss_dotav1.4/val/images/',
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(
+                type='MultiScaleFlipAug',
+                img_scale=(1024, 1024),
+                flip=False,
+                transforms=[
+                    dict(type='RResize'),
+                    dict(
+                        type='Normalize',
+                        mean=[123.675, 116.28, 103.53],
+                        std=[58.395, 57.12, 57.375],
+                        to_rgb=True),
+                    dict(type='Pad', size_divisor=32),
+                    dict(type='DefaultFormatBundle'),
+                    dict(type='Collect', keys=['img'])
+                ])
+        ],
+        version='le90',
+        classes=('R0402', 'R0603', 'LED0603', 'R0804', 'R2512', 'CAP5053',
+                 'LQFP7070', 'SOIC-8', 'SOT-23', 'TSSOP-20', 'LED0603Flip')),
+    test=dict(
+        type='DOTADataset',
+        ann_file=
+        'customize-dataset-workshop/data/split_ss_dotav1.4/test/annfiles/',
+        img_prefix=
+        'customize-dataset-workshop/data/split_ss_dotav1.4/test/images/',
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(
+                type='MultiScaleFlipAug',
+                img_scale=(1024, 1024),
+                flip=False,
+                transforms=[
+                    dict(type='RResize'),
+                    dict(
+                        type='Normalize',
+                        mean=[123.675, 116.28, 103.53],
+                        std=[58.395, 57.12, 57.375],
+                        to_rgb=True),
+                    dict(type='Pad', size_divisor=32),
+                    dict(type='DefaultFormatBundle'),
+                    dict(type='Collect', keys=['img'])
+                ])
+        ],
+        version='le90',
+        classes=('R0402', 'R0603', 'LED0603', 'R0804', 'R2512', 'CAP5053',
+                 'LQFP7070', 'SOIC-8', 'SOT-23', 'TSSOP-20', 'LED0603Flip')))
+evaluation = dict(interval=1, metric='mAP', iou_thr=0.7)
+optimizer = dict(type='SGD', lr=0.005, momentum=0.9, weight_decay=0.0001)
+optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
+lr_config = dict(
+    policy='step',
+    warmup='linear',
+    warmup_iters=500,
+    warmup_ratio=0.3333333333333333,
+    step=[8, 11])
+runner = dict(type='EpochBasedRunner', max_epochs=24)
+checkpoint_config = dict(interval=2)
+log_config = dict(interval=50, hooks=[dict(type='TextLoggerHook')])
+dist_params = dict(backend='nccl')
+log_level = 'INFO'
+load_from = None
+resume_from = None
+workflow = [('train', 1), ('val', 1)]
+opencv_num_threads = 0
+mp_start_method = 'fork'
+angle_version = 'le90'
+model = dict(
+    type='RoITransformer',
+    backbone=dict(
+        type='ResNet',
+        depth=50,
+        num_stages=4,
+        out_indices=(0, 1, 2, 3),
+        frozen_stages=1,
+        norm_cfg=dict(type='BN', requires_grad=True),
+        norm_eval=True,
+        style='pytorch',
+        init_cfg=dict(type='Pretrained', checkpoint='torchvision://resnet50')),
+    neck=dict(
+        type='FPN',
+        in_channels=[256, 512, 1024, 2048],
+        out_channels=256,
+        num_outs=5),
+    rpn_head=dict(
+        type='RotatedRPNHead',
+        in_channels=256,
+        feat_channels=256,
+        version='le90',
+        anchor_generator=dict(
+            type='AnchorGenerator',
+            scales=[8],
+            ratios=[0.5, 1.0, 2.0],
+            strides=[4, 8, 16, 32, 64]),
+        bbox_coder=dict(
+            type='DeltaXYWHBBoxCoder',
+            target_means=[0.0, 0.0, 0.0, 0.0],
+            target_stds=[1.0, 1.0, 1.0, 1.0]),
+        loss_cls=dict(
+            type='CrossEntropyLoss', use_sigmoid=True, loss_weight=1.0),
+        loss_bbox=dict(
+            type='SmoothL1Loss', beta=0.1111111111111111, loss_weight=1.0)),
+    roi_head=dict(
+        type='RoITransRoIHead',
+        version='le90',
+        num_stages=2,
+        stage_loss_weights=[1, 1],
+        bbox_roi_extractor=[
+            dict(
+                type='SingleRoIExtractor',
+                roi_layer=dict(
+                    type='RoIAlign', output_size=7, sampling_ratio=0),
+                out_channels=256,
+                featmap_strides=[4, 8, 16, 32]),
+            dict(
+                type='RotatedSingleRoIExtractor',
+                roi_layer=dict(
+                    type='RoIAlignRotated',
+                    out_size=7,
+                    sample_num=2,
+                    clockwise=True),
+                out_channels=256,
+                featmap_strides=[4, 8, 16, 32])
+        ],
+        bbox_head=[dict(num_classes=11),
+                   dict(num_classes=11)]),
+    train_cfg=dict(
+        rpn=dict(
+            assigner=dict(
+                type='MaxIoUAssigner',
+                pos_iou_thr=0.7,
+                neg_iou_thr=0.3,
+                min_pos_iou=0.3,
+                match_low_quality=True,
+                ignore_iof_thr=-1),
+            sampler=dict(
+                type='RandomSampler',
+                num=256,
+                pos_fraction=0.5,
+                neg_pos_ub=-1,
+                add_gt_as_proposals=False),
+            allowed_border=0,
+            pos_weight=-1,
+            debug=False),
+        rpn_proposal=dict(
+            nms_pre=2000,
+            max_per_img=2000,
+            nms=dict(type='nms', iou_threshold=0.7),
+            min_bbox_size=0),
+        rcnn=[
+            dict(
+                assigner=dict(
+                    type='MaxIoUAssigner',
+                    pos_iou_thr=0.5,
+                    neg_iou_thr=0.5,
+                    min_pos_iou=0.5,
+                    match_low_quality=False,
+                    ignore_iof_thr=-1,
+                    iou_calculator=dict(type='BboxOverlaps2D')),
+                sampler=dict(
+                    type='RandomSampler',
+                    num=512,
+                    pos_fraction=0.25,
+                    neg_pos_ub=-1,
+                    add_gt_as_proposals=True),
+                pos_weight=-1,
+                debug=False),
+            dict(
+                assigner=dict(
+                    type='MaxIoUAssigner',
+                    pos_iou_thr=0.5,
+                    neg_iou_thr=0.5,
+                    min_pos_iou=0.5,
+                    match_low_quality=False,
+                    ignore_iof_thr=-1,
+                    iou_calculator=dict(type='RBboxOverlaps2D')),
+                sampler=dict(
+                    type='RRandomSampler',
+                    num=512,
+                    pos_fraction=0.25,
+                    neg_pos_ub=-1,
+                    add_gt_as_proposals=True),
+                pos_weight=-1,
+                debug=False)
+        ]),
+    test_cfg=dict(
+        rpn=dict(
+            nms_pre=2000,
+            max_per_img=2000,
+            nms=dict(type='nms', iou_threshold=0.7),
+            min_bbox_size=0),
+        rcnn=dict(
+            nms_pre=2000,
+            min_bbox_size=0,
+            score_thr=0.05,
+            nms=dict(type='le90', iou_thr=0.1),
+            max_per_img=2000)))
+fp16 = dict(loss_scale='dynamic')
+classes = ('R0402', 'R0603', 'LED0603', 'R0804', 'R2512', 'CAP5053',
+           'LQFP7070', 'SOIC-8', 'SOT-23', 'TSSOP-20', 'LED0603Flip')
+work_dir = 'customize-dataset-workshop/output/roi_trans_dotav2'
+auto_resume = False
+gpu_ids = range(0, 1)
+
+2026-04-07 19:00:31,203 - mmrotate - INFO - Set random seed to 1025546166, deterministic: False

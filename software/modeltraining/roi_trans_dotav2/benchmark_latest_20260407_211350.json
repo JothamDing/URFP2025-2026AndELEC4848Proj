@@ -1,0 +1,12 @@
+{
+  "config": "D:\\mmrotate-main\\customize-dataset-workshop\\output\\roi_trans_dotav2\\roi_trans_r50_fpn_fp16_1x_dota_le90_custom.py",
+  "checkpoint": "D:\\mmrotate-main\\customize-dataset-workshop\\output\\roi_trans_dotav2\\latest.pth",
+  "dataset_len": 222,
+  "max_iter_requested": 2000,
+  "max_iter_used": 222,
+  "warmup": 5,
+  "measured_iters": 217,
+  "fps": 13.6326,
+  "ms_per_img": 73.3534,
+  "note": "Equivalent single-GPU benchmark (non-distributed) due Windows distributed backend limitations in current environment. Re-run on 2026-04-12 with PyTorch2.8/mmcv stream-id compatibility patch."
+}

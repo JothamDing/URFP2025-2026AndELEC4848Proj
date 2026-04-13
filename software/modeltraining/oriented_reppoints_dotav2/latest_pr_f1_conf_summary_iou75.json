@@ -1,0 +1,19 @@
+{
+  "config": "D:\\mmrotate-main\\customize-dataset-workshop\\output\\oriented_reppoints_dotav2\\oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py",
+  "result_pkl": "D:\\mmrotate-main\\customize-dataset-workshop\\output\\oriented_reppoints_dotav2\\latest_test_results.pkl",
+  "iou_thr": 0.75,
+  "num_images": 222,
+  "num_classes": 11,
+  "num_detections": 4590,
+  "num_gts_total": 2226,
+  "ap_from_pr_curve": 0.8416045862820403,
+  "best_f1": 0.8982472114727977,
+  "best_confidence_threshold": 0.775,
+  "precision_at_best_f1": 0.91047531149054,
+  "recall_at_best_f1": 0.8863432165318957,
+  "outputs": {
+    "pr_curve": "D:\\mmrotate-main\\customize-dataset-workshop\\output\\oriented_reppoints_dotav2\\latest_pr_curve_iou75.png",
+    "precision_confidence_curve": "D:\\mmrotate-main\\customize-dataset-workshop\\output\\oriented_reppoints_dotav2\\latest_precision_confidence_curve_iou75.png",
+    "f1_confidence_curve": "D:\\mmrotate-main\\customize-dataset-workshop\\output\\oriented_reppoints_dotav2\\latest_f1_confidence_curve_iou75.png"
+  }
+}

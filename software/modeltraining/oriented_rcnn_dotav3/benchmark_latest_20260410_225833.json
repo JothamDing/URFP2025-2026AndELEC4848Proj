@@ -1,0 +1,12 @@
+{
+  "config": "D:\\mmrotate-main\\customize-dataset-workshop\\output\\oriented_rcnn_dotav3\\oriented_rcnn_r50_fpn_1x_dota_custom_optv3.py",
+  "checkpoint": "D:\\mmrotate-main\\customize-dataset-workshop\\output\\oriented_rcnn_dotav3\\best.pth",
+  "dataset_len": 222,
+  "max_iter_requested": 2000,
+  "max_iter_used": 222,
+  "warmup": 5,
+  "measured_iters": 217,
+  "fps": 15.6598,
+  "ms_per_img": 63.8579,
+  "note": "Equivalent single-GPU benchmark (non-distributed) due Windows distributed backend limitations in current environment. Re-run on 2026-04-12 with PyTorch2.8/mmcv stream-id compatibility patch."
+}

@@ -1,0 +1,15 @@
+ID     Name                 Annotations
+----   -------------------- -----------
+0      R0402                102
+1      R0603                1
+2      LED0603              433
+3      R0804                217
+4      R2512                37
+5      CAP5053              6
+6      LQFP7070             1
+7      SOIC-8               23
+8      SOT-23               27
+9      TSSOP-20             22
+10     LED0603Flip          80
+
+Total annotations: 949
