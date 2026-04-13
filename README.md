@@ -1,7 +1,7 @@
 # URFP2025-2026 + ELEC4848 Project
 
 An open-source project for electronic component detection, covering the full pipeline from hardware design to dataset preparation and oriented object detection training.
-
+placement demo: https://youtu.be/beTFyRhgFUg?si=JH4MDpouKkA5vrrt
 ## Machine
 
 | Machine View | Image |
