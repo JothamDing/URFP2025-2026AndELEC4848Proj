@@ -1,18 +1,20 @@
 # URFP2025-2026 + ELEC4848 Project
 
-开源项目，聚焦电子元件目标检测的完整工程链路：
+An open-source project for electronic component detection, covering the full pipeline from hardware design to dataset preparation and oriented object detection training.
 
-- 硬件部分：设备结构与控制板相关设计文件
-- 数据部分：采集、标注、格式转换与数据集划分
-- 模型部分：面向旋转框检测任务的训练配置与实验记录
+## Machine
 
-本仓库适合以下场景：
+| Machine View | Image |
+| --- | --- |
+| Full Machine | ![Machine](image/machine.jpg) |
+| Top View | ![Machine Top View](image/machine-top-view.jpg) |
+| Frame View | ![Machine Frame](image/machineframe.jpg) |
 
-- 课程项目复现
-- 电子元件视觉检测研究
-- 旋转目标检测（Oriented Object Detection）实验
+## Structure
 
-## 项目结构
+This project is organized into hardware design assets, dataset preparation tools, and model training configurations/results.
+
+![Project Structure](image/structure.png)
 
 ```text
 URFP2025-2026AndELEC4848Proj/
@@ -21,6 +23,7 @@ URFP2025-2026AndELEC4848Proj/
 │  ├─ controlBoard/
 │  └─ testboard/
 ├─ poster80200/
+├─ image/
 ├─ software/
 │  ├─ elec-dataset/
 │  │  └─ output/
@@ -32,122 +35,85 @@ URFP2025-2026AndELEC4848Proj/
 │  │  ├─ step2annotationtool/
 │  │  └─ step3annotationtransfer/
 │  └─ modeltraining/
+├─ LICENSE
 └─ README.md
 ```
 
-## 一图看懂工作流
+## Pipeline Overview
 
-1. 采集图像
-2. 交互式标注
-3. 标注格式转换与数据划分
-4. 训练旋转框检测模型
-5. 导出结果与评估指标
+1. Capture images with a USB camera tool.
+2. Annotate images with the SAM-based annotation workflow.
+3. Convert annotations to DOTA format and split train/val/test.
+4. Train oriented object detection models.
+5. Evaluate and compare experiment outputs.
 
-## 软件流水线说明
+## Software Workflow
 
-### Step 1: 数据采集
+### Step 1: Image Capture
 
-目录：`software/prepare-dataset/step1capture-dataset`
+Path: `software/prepare-dataset/step1capture-dataset`
 
-主要脚本：
+Main scripts:
 
-- `camera_capture.py`：USB 相机采集工具（支持曝光、白平衡等参数控制）
-- `copy_zero_images.py`：数据整理辅助脚本
+- `camera_capture.py`: USB camera capture with manual controls (exposure, white balance, etc.)
+- `copy_zero_images.py`: helper script for dataset organization
 
-安装与运行（示例）：
+Example:
 
 ```bash
 pip install -r software/prepare-dataset/step1capture-dataset/requirements.txt
 python software/prepare-dataset/step1capture-dataset/camera_capture.py
 ```
 
-### Step 2: 标注工具
+### Step 2: Annotation
 
-目录：`software/prepare-dataset/step2annotationtool`
+Path: `software/prepare-dataset/step2annotationtool`
 
-主要脚本：
+Main scripts:
 
-- `segment_anything_annotator.py`：SAM 标注入口
-- `helpers/generate_onnx.py`：SAM 权重转 ONNX（依赖上游 SAM 仓库）
-- `statistics.sh`：统计相关脚本
+- `segment_anything_annotator.py`: SAM annotation entry
+- `helpers/generate_onnx.py`: convert SAM checkpoint to ONNX
+- `statistics.sh`: basic statistics script
 
-说明：
+### Step 3: Annotation Transfer and Split
 
-- 该步骤依赖 Segment Anything 相关环境与模型权重
-- 标注结果支持导出 YOLO 与 COCO 相关格式
+Path: `software/prepare-dataset/step3annotationtransfer`
 
-### Step 3: 标注转换与划分
+Main scripts:
 
-目录：`software/prepare-dataset/step3annotationtransfer`
+- `convert_yolo_obb_to_dota.py`: YOLO-OBB to DOTA conversion + split
+- `duplicate_label_variants.sh`: duplicate label variants
 
-主要脚本：
-
-- `convert_yolo_obb_to_dota.py`：YOLO-OBB 转 DOTA，并按比例划分数据集
-- `duplicate_label_variants.sh`：批量复制标签变体（如 `-0.txt -> -1.txt, -2.txt`）
-
-运行（示例）：
+Example:
 
 ```bash
 python software/prepare-dataset/step3annotationtransfer/convert_yolo_obb_to_dota.py
-# 可选：自定义划分比例
 python software/prepare-dataset/step3annotationtransfer/convert_yolo_obb_to_dota.py --split-ratios 0.8,0.1,0.1
 ```
 
-默认划分比例：`train/val/test = 0.7/0.15/0.15`
+Default split ratio: `train/val/test = 0.7/0.15/0.15`
 
-### 模型训练
+### Model Training
 
-目录：`software/modeltraining`
+Path: `software/modeltraining`
 
-当前包含多套旋转检测配置与实验输出：
+Included configurations:
 
 - `oriented_rcnn_dotav3/oriented_rcnn_r50_fpn_1x_dota_custom_optv3.py`
 - `oriented_reppoints_dotav2/oriented_reppoints_r50_fpn_40e_dota_ms_le135_custom.py`
 - `roi_trans_dotav2/roi_trans_r50_fpn_fp16_1x_dota_le90_custom.py`
 
-建议基于 MMRotate 环境运行训练与评估。`software/modeltraining/README.md` 中提供了现有模型权重与环境记录。
-
-## 硬件部分说明
-
-目录：`hardware`
-
-- `corexyframe-v2.easm`：结构设计文件
-- `controlBoard/`：控制板设计相关文件
-- `testboard/`：测试板工程及封装库
-
-提示：该目录包含 EDA 工具相关工程文件（如 KiCad 与其他格式），请使用对应软件打开。
-
-## 快速开始（建议顺序）
-
-1. 准备 Python 环境（推荐单独虚拟环境）
-2. 运行 Step 1 完成图像采集
-3. 配置 SAM 并运行 Step 2 完成标注
-4. 运行 Step 3 生成 DOTA 格式与 train/val/test
-5. 进入 `software/modeltraining` 选择一个配置开始训练
-
-## 已有数据与结果
-
-仓库中已包含：
-
-- `software/elec-dataset/output` 下的 train/val/test 样例数据
-- `software/modeltraining` 下的训练日志、基准测试输出与指标汇总
-
-## 依赖与环境
-
-- Python 版本建议与 MMRotate 兼容
-- 训练环境建议按 MMRotate 官方文档安装
-- SAM 标注需要额外下载权重并准备 ONNX 模型
-
-## 致谢
-
-本项目使用并参考了以下开源生态：
-
-- OpenMMLab / MMRotate
-- Segment Anything (Meta)
-- 相关数据标注工具与社区实现
-
 ## License
 
-当前仓库根目录未提供统一 License 文件。
+This project is licensed under the MIT License. See the `LICENSE` file for details.
 
-如果你希望对外发布并明确复用规则，建议补充一个 License（如 MIT、Apache-2.0 或 GPL-3.0）。
+## Acknowledgements
+
+Thanks to the following open-source projects and communities:
+
+| Project | Logo |
+| --- | --- |
+| OpenPnP | ![OpenPnP](image/openpnp-logo.webp) |
+| Opulo | ![Opulo](image/opulo.png) |
+| OSHW-Smoothieware | ![OSHW-Smoothieware](image/oshw-logo.png) |
+| MMRotate | ![MMRotate](image/mmrotate-logo.png) |
